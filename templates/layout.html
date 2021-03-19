@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- CSS -->
+	<link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+
+	{% if title %}
+	<title>Flask Blog - {{ title }}</title>
+	{% else %}
+	<title>Flask Blog</title>
+	{% endif %}
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+			<div class="container">
+				<a class="navbar-brand mr-4" href="/">Flask Blog</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarToggle">
+					<div class="navbar-nav mr-auto">
+						<a class="nav-item nav-link" href="/">Home</a>
+						<a class="nav-item nav-link" href="/about">About</a>
+					</div>
+					<!-- Navbar Right Side -->
+					<div class="navbar-nav">
+						<a class="nav-item nav-link" href="/login">Login</a>
+						<a class="nav-item nav-link" href="/register">Register</a>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</header>
+	{#
+	<div class="container">
+		<div class="row">
+			<div class="col-sm">
+				1D
+			</div>
+			<div class="col-sm">
+				1W
+			</div>
+			<div class="col-sm">
+				1M
+			</div>
+			<div class="col-sm">
+				3M
+			</div>
+			<div class="col-sm">
+				1Y
+			</div>
+			<div class="col-sm">
+				5Y
+			</div>
+		</div>
+	</div>
+	#}
+
+	<main role="main" class="container">
+		<div class="row">
+			<div class="col-md-8">
+				{% block content %}{% endblock %}
+			</div>
+			<div class="col-md-4">
+				<div class="content-section">
+					<h3>Our Sidebar</h3>
+					<p class='text-muted'>You can put any information here you'd like.
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+							<label class="form-check-label" for="flexRadioDefault1">
+								1D
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+							<label class="form-check-label" for="flexRadioDefault2">
+								1W
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+							<label class="form-check-label" for="flexRadioDefault1">
+								1M
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+							<label class="form-check-label" for="flexRadioDefault1">
+								3M
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+							<label class="form-check-label" for="flexRadioDefault1">
+								1Y
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+							<label class="form-check-label" for="flexRadioDefault1">
+								5Y
+							</label>
+						</div>
+					</p>
+				</div>
+			</div>
+		</div>
+	</main>
+
+
+	<!-- This loads Bootstrap JavaScript CODE -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content%}
+
+	{# Maybe adding table-striped is nice too? #}
+	<table id="stock_data_table" class="table">
+	  <thead>
+	    <tr>
+	      <th scope="col">Stock / Ticker</th>
+	      <th scope="col">Mean Profit Ratio</th>
+	      <th scope="col">Std Profit Ratio</th>
+	      <th scope="col">Sum Profit Ratio</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	  	{% for stock_data in stocks_data %}
+		    <tr>
+		      <th scope="row">{{ stock_data.Stock }}</th>
+		      <td>{{ stock_data.Mean_Profit_Ratio }}</td>
+		      <td>{{ stock_data.Std_Profit_Ratio }}</td>
+		      <td>{{ stock_data.Sum_Profit_Ratio }}</td>
+		    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+
+	<script>
+		$(document).ready(function() {
+			$('#stock_data_table').DataTable();
+		});
+	</script>
+
+{% endblock content %}
+
+
