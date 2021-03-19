@@ -73,3 +73,5 @@ fabric.properties
 __pycache__/
 
 stockdata.pickle
+
+.DS_Store
