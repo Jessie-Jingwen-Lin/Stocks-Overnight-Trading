@@ -70,7 +70,7 @@ def ranking(stock_price, start_day):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    # tickers = tickers[:200]
+    tickers = tickers[:200]
     # print(tickers)
 
     eastern = timezone('US/Eastern')
