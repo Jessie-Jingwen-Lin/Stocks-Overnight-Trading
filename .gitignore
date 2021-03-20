@@ -77,3 +77,6 @@ stockdata.pickle
 .DS_Store
 
 venv/
+
+nasdaq_stocknames1
+nasdaq_stocknames2
