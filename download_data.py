@@ -4,6 +4,7 @@ import numpy as np
 import datetime
 from pytz import timezone
 import stockdata
+import pickle
 
 
 # def choose_std_filter_limit(days, rank):
@@ -49,6 +50,7 @@ def ranking(stock_price, start_day):
     # filtered_tickers = [c for c in stock_price['10:30'].columns.values if increasedgain_index[c]]
 
     stats = pd.DataFrame(columns=['mean_profit_ratio', 'std_profit_ratio', 'sum_profit_ratio'])
+
     for ticker in filtered_tickers:
         day_profit = (stock_price['15:00', ticker].iloc[1:].values - stock_price['10:30', ticker].iloc[:-1].values) / stock_price['10:30', ticker].iloc[:-1].values
         num_non_nan = day_profit.shape[0] - np.isnan(day_profit).sum()
@@ -70,7 +72,7 @@ def ranking(stock_price, start_day):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    tickers = tickers[:200]
+    tickers = tickers[:800]
     # print(tickers)
 
     eastern = timezone('US/Eastern')
@@ -85,8 +87,19 @@ def main():
     stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_5)
     stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)
 
-    print(stats_bymean_5)
-    print(stats_bymean_30)
+    # Step 1: convert the dataframe stats_bymean_5 to the list / dictionary format.
+
+    stocks_data = []
+    for i in range(0, stats_bymean_5.shape[0]):
+        stocks_data.append({'Stock': stats_bymean_5.index[i], 'Mean_Profit_Ratio': stats_bymean_5.iloc[i,0], 'Std_Profit_Ratio': stats_bymean_5.iloc[i,1], 'Sum_Profit_Ratio': stats_bymean_5.iloc[i,2]})
+
+    #print(stocks_data)
+ 
+    # Step 2: save that data to stocks_data.pickle
+    with open('stocks_data.pkl', 'wb') as f:
+        pickle.dump(stocks_data, f)
+
+   
 
 
 

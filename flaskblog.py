@@ -1,28 +1,33 @@
 # What's up?
 
 from flask import Flask, render_template, url_for
+import pickle
 app = Flask(__name__)
 
 
-stocks_data = [{'Stock': 'A',
-        'Mean_Profit_Ratio': '1',
-        'Std_Profit_Ratio': '2',
-        'Sum_Profit_Ratio': '3'},
+# stocks_data = [{'Stock': 'A',
+#         'Mean_Profit_Ratio': '1',
+#         'Std_Profit_Ratio': '2',
+#         'Sum_Profit_Ratio': '3'},
 
-        {'Stock': 'B',
-        'Mean_Profit_Ratio': '4',
-        'Std_Profit_Ratio': '5',
-        'Sum_Profit_Ratio': '6'},
+#         {'Stock': 'B',
+#         'Mean_Profit_Ratio': '4',
+#         'Std_Profit_Ratio': '5',
+#         'Sum_Profit_Ratio': '6'},
 
-        {'Stock': 'C',
-        'Mean_Profit_Ratio': '7',
-        'Std_Profit_Ratio': '8',
-        'Sum_Profit_Ratio': '9'}]
+#         {'Stock': 'C',
+#         'Mean_Profit_Ratio': '7',
+#         'Std_Profit_Ratio': '8',
+#         'Sum_Profit_Ratio': '9'}]
+
 
 
 @app.route("/")
 @app.route("/home")
 def home():
+    with open('stocks_data.pkl', 'rb') as f:
+        stocks_data = pickle.load(f)
+
     return render_template('home.html', stocks_data=stocks_data)
 
 
