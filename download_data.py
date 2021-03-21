@@ -72,7 +72,7 @@ def ranking(stock_price, start_day):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    tickers = tickers[:800]
+    tickers = tickers[:100]
     # print(tickers)
 
     eastern = timezone('US/Eastern')
@@ -93,13 +93,11 @@ def main():
     for i in range(0, stats_bymean_5.shape[0]):
         stocks_data.append({'Stock': stats_bymean_5.index[i], 'Mean_Profit_Ratio': stats_bymean_5.iloc[i,0], 'Std_Profit_Ratio': stats_bymean_5.iloc[i,1], 'Sum_Profit_Ratio': stats_bymean_5.iloc[i,2]})
 
-    #print(stocks_data)
+    stocks_data_lastupdated = {'datetime': loc_dt, 'stocks_data': stocks_data}
  
     # Step 2: save that data to stocks_data.pickle
-    with open('stocks_data.pkl', 'wb') as f:
-        pickle.dump(stocks_data, f)
-
-   
+    with open('stocks_data_lastupdated.pkl', 'wb') as f:
+        pickle.dump(stocks_data_lastupdated, f)
 
 
 
