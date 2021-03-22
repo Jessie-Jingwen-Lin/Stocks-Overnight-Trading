@@ -80,5 +80,6 @@ venv/
 
 nasdaq_stocknames1
 nasdaq_stocknames2
+
 stocks_data.pkl
 stocks_data_lastupdated.pkl

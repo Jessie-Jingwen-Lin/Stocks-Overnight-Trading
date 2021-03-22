@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import yfinance as yf
-from alpaca_v1 import AlpacaV1Downloader
+#from alpaca_v1 import AlpacaV1Downloader
 from pytz import timezone
 
 def get_all_tickers():
