@@ -59,7 +59,7 @@ def download_from_yahoo(tickers, start, end, interval):
         return None
 
     print('downloading {} stocks from {} to {}'.format(len(tickers), start, end))
-    return yf.download(tickers, start=start, end=end, interval=interval, threads=32)
+    return yf.download(tickers, start=start, end=end, interval=interval, threads=True)
 
 def extract_overnight_times_30_min(df):
     df = df["Open"]
