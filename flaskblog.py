@@ -25,10 +25,10 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/home")
 def home():
-    with open('stocks_data_lastupdated.pkl', 'rb') as f:
-        stocks_data_lastupdated = pickle.load(f)
-        stocks_data = stocks_data_lastupdated['stocks_data']
-        last_updated = stocks_data_lastupdated['datetime']
+    with open('data_for_webserver.pkl', 'rb') as f:
+        data_for_webserver = pickle.load(f)
+        stocks_data = data_for_webserver['stocks_data_mean']
+        last_updated = data_for_webserver['datetime']
 
 
     return render_template('home.html', stocks_data = stocks_data, last_updated = last_updated)

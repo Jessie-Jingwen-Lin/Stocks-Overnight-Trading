@@ -5,6 +5,7 @@ import datetime
 import yfinance as yf
 #from alpaca_v1 import AlpacaV1Downloader
 from pytz import timezone
+import sys
 
 def get_all_tickers():
     subprocess.call('curl ftp://ftp.nasdaqtrader.com/SymbolDirectory/nasdaqlisted.txt > nasdaq_stocknames1', shell = True)
@@ -58,39 +59,43 @@ def download_from_yahoo(tickers, start, end, interval):
         print("No data between {} and {}, will not attempt to download stocks.".format(start, end))
         return None
 
-    print('downloading {} stocks from {} to {}'.format(len(tickers), start, end))
-    return yf.download(tickers, start=start, end=end, interval=interval, threads=16)
-
-def extract_overnight_times_30_min(df):
-    df = df["Open"]
-
-    tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30)
-    three_index = df.index.map(lambda date_time: date_time.hour == 15 and date_time.minute == 00)
-
-    prices_morning = df.loc[tenthirty_index, :].copy()
-    prices_morning.index = prices_morning.index.map(lambda date_time: date_time.date())
-
-    prices_afternoon = df.loc[three_index, :].copy()
-    prices_afternoon.index = prices_afternoon.index.map(lambda date_time: date_time.date())
-
-    morning_tuples_index = [('10:30', tup) for tup in prices_morning.columns.values]
-    afternoon_tuples_index = [('15:00', tup) for tup in prices_afternoon.columns.values]
-
-    morning_index = pd.MultiIndex.from_tuples(morning_tuples_index)
-    afternoon_index = pd.MultiIndex.from_tuples(afternoon_tuples_index)
+    if sys.platform == 'darwin':
+        threads = 32
+    else:
+        threads = 8
     
-    prices_morning.columns = morning_index
-    prices_afternoon.columns = afternoon_index
+    print('downloading {} stocks from {} to {} using {} threads'.format(len(tickers), start, end, threads))
+    return yf.download(tickers, start=start, end=end, interval=interval, threads=threads)
 
-    combined = pd.concat([prices_morning, prices_afternoon], axis=1)
-    return combined
+# def extract_overnight_times_30_min(df):
+#     df = df["Open"]
+
+#     tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30)
+#     twothirty_index = df.index.map(lambda date_time: date_time.hour == 14 and date_time.minute == 30)
+
+#     prices_morning = df.loc[tenthirty_index, :].copy()
+#     prices_morning.index = prices_morning.index.map(lambda date_time: date_time.date())
+
+#     prices_afternoon = df.loc[twothirty_index, :].copy()
+#     prices_afternoon.index = prices_afternoon.index.map(lambda date_time: date_time.date())
+
+#     morning_tuples_index = [('10:30', tup) for tup in prices_morning.columns.values]
+#     afternoon_tuples_index = [('15:00', tup) for tup in prices_afternoon.columns.values]
+
+#     morning_index = pd.MultiIndex.from_tuples(morning_tuples_index)
+#     afternoon_index = pd.MultiIndex.from_tuples(afternoon_tuples_index)
+    
+#     prices_morning.columns = morning_index
+#     prices_afternoon.columns = afternoon_index
+
+#     combined = pd.concat([prices_morning, prices_afternoon], axis=1)
+#     return combined
 
 def extract_overnight_times_60_min(df):
     df = df["Open"]
 
     tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30)
     two_thirty_index = df.index.map(lambda date_time: date_time.hour == 14 and date_time.minute == 30)
-    three_thirty_index = df.index.map(lambda date_time: date_time.hour == 15 and date_time.minute == 30)
 
     prices_morning = df.loc[tenthirty_index, :].copy()
     prices_morning.index = prices_morning.index.map(lambda date_time: date_time.date())
@@ -98,10 +103,7 @@ def extract_overnight_times_60_min(df):
     prices_two_thirty = df.loc[two_thirty_index, :].copy()
     prices_two_thirty.index = prices_two_thirty.index.map(lambda date_time: date_time.date())
 
-    prices_three_thirty = df.loc[three_thirty_index, :].copy()
-    prices_three_thirty.index = prices_three_thirty.index.map(lambda date_time: date_time.date())
-
-    prices_afternoon = (prices_two_thirty + prices_three_thirty) / 2
+    prices_afternoon = prices_two_thirty
 
     morning_tuples_index = [('10:30', tup) for tup in prices_morning.columns.values]
     afternoon_tuples_index = [('15:00', tup) for tup in prices_afternoon.columns.values]
@@ -120,41 +122,45 @@ def extract_overnight_times_60_min(df):
 def download_stock(tickers, start, end):
     one_day = datetime.timedelta(days=1)
 
-    days_ago_60 = datetime.date.today() - datetime.timedelta(days=60)
+    # days_ago_60 = datetime.date.today() - datetime.timedelta(days=60)
     
-    #  start ------------- end
+    # #  start ------------- end
 
-    range_30_min = None
-    range_60_min = None
-    if end <= days_ago_60:
-        # start ------------- end -------- days_ago_60
-        range_60_min = (start, end + one_day)
-    elif start <= days_ago_60 and days_ago_60 < end:
-        # start ------ days_ago_60 ------- end
-        range_30_min = (days_ago_60 + one_day, end + one_day)
-        range_60_min = (start, days_ago_60 + one_day)
-    else:
-        # days_ago_60 -------- start ------------- end
-        range_30_min = (start, end + one_day)
+    # range_30_min = None
+    # range_60_min = None
+    # if end <= days_ago_60:
+    #     # start ------------- end -------- days_ago_60
+    #     range_60_min = (start, end + one_day)
+    # elif start <= days_ago_60 and days_ago_60 < end:
+    #     # start ------ days_ago_60 ------- end
+    #     range_30_min = (days_ago_60 + one_day, end + one_day)
+    #     range_60_min = (start, days_ago_60 + one_day)
+    # else:
+    #     # days_ago_60 -------- start ------------- end
+    #     range_30_min = (start, end + one_day)
     
-    df_30_min = None
-    df_60_min = None
+    # df_30_min = None
+    # df_60_min = None
     
-    if range_30_min is not None:
-        df_30_min = download_from_yahoo(tickers, range_30_min[0], range_30_min[1], '30m')
-        df_30_min = extract_overnight_times_30_min(df_30_min)
+    # if range_30_min is not None:
+    #     df_30_min = download_from_yahoo(tickers, range_30_min[0], range_30_min[1], '30m')
+    #     df_30_min = extract_overnight_times_30_min(df_30_min)
     
-    if range_60_min is not None:
-        df_60_min = download_from_yahoo(tickers, range_60_min[0], range_60_min[1], '60m')
-        df_60_min = extract_overnight_times_60_min(df_60_min)
+    # if range_60_min is not None:
+    #     df_60_min = download_from_yahoo(tickers, range_60_min[0], range_60_min[1], '60m')
+    #     df_60_min = extract_overnight_times_60_min(df_60_min)
 
+
+    df_60_min = download_from_yahoo(tickers, start, end + one_day, '60m')
+    df_60_min = extract_overnight_times_60_min(df_60_min)
+    return df_60_min
 
     # print(df_30_min)
     # print(df_60_min)
 
-    df_merged = pd.concat([df_60_min, df_30_min])
+    # df_merged = pd.concat([df_60_min, df_30_min])
 
-    return df_merged
+    # return df_merged
 
 
 
