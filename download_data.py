@@ -58,6 +58,8 @@ def check_increased_gain(prices_morning, prices_afternoon):
 # Note: it must be that stock_price contains at least enough days of data for the days parameter
 def ranking(stock_price, start_day):
     # Create Dictionary
+    print(start_day)
+    print(stock_price)
     stock_price = stock_price.loc[start_day:]
 
     # filter the stocks with increased gain
@@ -87,36 +89,57 @@ def ranking(stock_price, start_day):
     return stats_bymean
 
 
+def df_to_list_of_dicts(df):
+    stocks_data = []
+    for i in range(0, df.shape[0]):
+        stocks_data.append({'Stock': df.index[i], 'Mean_Profit_Ratio': df.iloc[i,0], 'Std_Profit_Ratio': df.iloc[i,1], 'Sum_Profit_Ratio': df.iloc[i,2]})
+    return stocks_data
+
 def main():
     tickers = stockdata.get_all_tickers()
-    #tickers = tickers[:100]
+    # tickers = tickers[:1000]
     # print(tickers)
 
-    # tickers = ["AAPL", "DLPN"]
 
     eastern = timezone('US/Eastern')
     loc_dt = datetime.datetime.now(eastern)
     today = loc_dt.date()
 
+    # days_ago_5 = today - datetime.timedelta(days=5)
+    days_ago_1 = today - datetime.timedelta(days=1)
     days_ago_5 = today - datetime.timedelta(days=5)
     days_ago_30 = today - datetime.timedelta(days=30)
+    days_ago_90 = today - datetime.timedelta(days=90)
+    days_ago_365 = today - datetime.timedelta(days=365)
+    days_ago_729 = today - datetime.timedelta(days=729)
 
-    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_5, days_ago_30), today)
+    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_1, days_ago_5, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
+    stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)
     stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_5)
     stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)
+    stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90)
+    stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365)
+    stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729)
 
-    # Step 1: convert the dataframe stats_bymean_5 to the list / dictionary format.
+    #print(stats_bymean_30)
+   
+    data_for_webserver = {
+        'datetime': loc_dt,
+        'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
+        'stocks_data_1w': df_to_list_of_dicts(stats_bymean_5),
+        'stocks_data_1m': df_to_list_of_dicts(stats_bymean_30),
+        'stocks_data_3m': df_to_list_of_dicts(stats_bymean_90),
+        'stocks_data_1y': df_to_list_of_dicts(stats_bymean_365),
+        'stocks_data_2y': df_to_list_of_dicts(stats_bymean_729),
+        'stocks_data_mean': df_to_list_of_dicts(((stats_bymean_1+stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/6).dropna())
+    }
 
-    stocks_data = []
-    for i in range(0, stats_bymean_5.shape[0]):
-        stocks_data.append({'Stock': stats_bymean_5.index[i], 'Mean_Profit_Ratio': stats_bymean_5.iloc[i,0], 'Std_Profit_Ratio': stats_bymean_5.iloc[i,1], 'Sum_Profit_Ratio': stats_bymean_5.iloc[i,2]})
-
-    stocks_data_lastupdated = {'datetime': loc_dt, 'stocks_data': stocks_data}
+    print(data_for_webserver['stocks_data_mean'])
  
     # Step 2: save that data to stocks_data.pickle
-    with open('stocks_data_lastupdated.pkl', 'wb') as f:
-        pickle.dump(stocks_data_lastupdated, f)
+    with open('data_for_webserver.pkl', 'wb') as f:
+        pickle.dump(data_for_webserver, f)
 
 
 
