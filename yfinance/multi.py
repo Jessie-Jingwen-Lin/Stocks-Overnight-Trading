@@ -146,6 +146,9 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
     if len(tickers) == 1:
         return shared._DFS[tickers[0]]
 
+    # Filter the dataframes to remove junk empty dataframes
+    shared._DFS = {k: v for (k, v) in shared._DFS.items() if ticker_df_filter(k, v)}
+
     try:
         data = _pd.concat(shared._DFS.values(), axis=1,
                           keys=shared._DFS.keys())
@@ -160,6 +163,8 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
 
     return data
 
+def ticker_df_filter(ticker, df):
+    return (not df.empty)
 
 def _realign_dfs():
     idx_len = 0
