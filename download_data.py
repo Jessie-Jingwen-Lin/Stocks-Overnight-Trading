@@ -58,20 +58,29 @@ def check_increased_gain(prices_morning, prices_afternoon):
 # Note: it must be that stock_price contains at least enough days of data for the days parameter
 def ranking(stock_price, start_day):
     # Create Dictionary
-    print(start_day)
-    print(stock_price)
     stock_price = stock_price.loc[start_day:]
 
     # filter the stocks with increased gain
-    all_downloaded_tickers = stock_price['10:30'].columns.values
-    filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(stock_price['10:30'][c], stock_price['15:00'][c])]
+
+    morning_df = stock_price['10:30']
+    afternoon_df = stock_price['15:00']
+    all_downloaded_tickers = morning_df.columns.values
+
+    filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
 
     # filtered_tickers = [c for c in stock_price['10:30'].columns.values if increasedgain_index[c]]
 
-    stats = pd.DataFrame(columns=['mean_profit_ratio', 'std_profit_ratio', 'sum_profit_ratio'])
+
+    stats_index = []
+    stats_mean = []
+    stats_std = []
+    stats_sum = []
 
     for ticker in filtered_tickers:
-        day_profit = (stock_price['10:30', ticker].iloc[1:].values - stock_price['15:00', ticker].iloc[:-1].values) / stock_price['15:00', ticker].iloc[:-1].values
+        ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
+        ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
+
+        day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
         num_non_nan = day_profit.shape[0] - np.isnan(day_profit).sum()
         if num_non_nan <= 1:
             # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
@@ -81,12 +90,15 @@ def ranking(stock_price, start_day):
         std_profit_ratio = np.nanstd(day_profit)
         sum_profit_ratio = np.nanprod(1 + day_profit) - 1  # np.prod multiply everything in the array
 
-        stats.loc[ticker] = [mean_profit_ratio, std_profit_ratio, sum_profit_ratio]
+        stats_index.append(ticker)
+        stats_mean.append(mean_profit_ratio)
+        stats_std.append(std_profit_ratio)
+        stats_sum.append(sum_profit_ratio)
+    
+    stats = pd.DataFrame({'mean_profit_ratio': stats_mean, 'std_profit_ratio': stats_std, 'sum_profit_ratio': stats_sum}, index=stats_index)
+    # stats_bymean = stats.sort_values(by="mean_profit_ratio", ascending=False)
 
-
-    stats_bymean = stats.sort_values(by="mean_profit_ratio", ascending=False)
-
-    return stats_bymean
+    return stats
 
 
 def df_to_list_of_dicts(df):
@@ -97,15 +109,14 @@ def df_to_list_of_dicts(df):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    # tickers = tickers[:1000]
-    # print(tickers)
+    # # tickers = tickers[:100] + ['BFT.W']
+    # # print(tickers)
 
 
     eastern = timezone('US/Eastern')
     loc_dt = datetime.datetime.now(eastern)
     today = loc_dt.date()
 
-    # days_ago_5 = today - datetime.timedelta(days=5)
     days_ago_1 = today - datetime.timedelta(days=1)
     days_ago_5 = today - datetime.timedelta(days=5)
     days_ago_30 = today - datetime.timedelta(days=30)
@@ -135,7 +146,7 @@ def main():
         'stocks_data_mean': df_to_list_of_dicts(((stats_bymean_1+stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/6).dropna())
     }
 
-    print(data_for_webserver['stocks_data_mean'])
+    # print(data_for_webserver['stocks_data_mean'])
  
     # Step 2: save that data to stocks_data.pickle
     with open('data_for_webserver.pkl', 'wb') as f:
