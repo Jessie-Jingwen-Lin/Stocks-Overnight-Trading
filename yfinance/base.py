@@ -152,16 +152,13 @@ class TickerBase():
         retries = 10
         data = None
         for retry in range(retries):
-            data_raw = _requests.get(url=url, params=params, proxies=proxy)
-            if "Will be right back" not in data_raw.text:
-                # raise RuntimeError("*** YAHOO! FINANCE IS CURRENTLY DOWN! ***\n"
-                #                 "Our engineers are working quickly to resolve "
-                #                 "the issue. Thank you for your patience.")
-                try:
+            try:
+                data_raw = _requests.get(url=url, params=params, proxies=proxy)
+                if "Will be right back" not in data_raw.text:
                     data = data_raw.json()
                     break
-                except:
-                    pass
+            except:
+                pass
             
             _time.sleep(20)
             print("Retrying: " + url)
