@@ -5,15 +5,23 @@
 	<table id="stock_data_table" class="table">
 	  <thead>
 	    <tr>
+	      <th scope="col"></th>
 	      <th scope="col">Stock / Ticker</th>
-	      <th scope="col">Mean Profit Ratio</th>
-	      <th scope="col">Std Profit Ratio</th>
-	      <th scope="col">Sum Profit Ratio</th>
+	      <th scope="col">Mean of Mean Profit Ratio</th>
+	      <th scope="col">Mean of Std Profit Ratio</th>
+	      <th scope="col">Mean of Sum Profit Ratio</th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	  	{% for stock_data in stocks_data %}
 		    <tr>
+		      <td>
+		      	<button type="button" class="btn btn-secondary expand-button">
+                	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+  						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
+					</svg>
+              	</button>
+		      </td>
 		      <th scope="row">{{ stock_data.Stock }}</th>
 		      <td>{{ stock_data.Mean_Profit_Ratio }}</td>
 		      <td>{{ stock_data.Std_Profit_Ratio }}</td>
@@ -27,6 +35,10 @@
 	<script>
 		$(document).ready(function() {
 			$('#stock_data_table').DataTable();
+		});
+
+		$('.expand-button').on('click', function() {
+			alert("going to expand the row now")
 		});
 	</script>
 

@@ -6,6 +6,7 @@ import yfinance as yf
 #from alpaca_v1 import AlpacaV1Downloader
 from pytz import timezone
 import sys
+import pickle
 
 def get_all_tickers():
     subprocess.call('curl ftp://ftp.nasdaqtrader.com/SymbolDirectory/nasdaqlisted.txt > nasdaq_stocknames1', shell = True)
@@ -63,7 +64,7 @@ def download_from_yahoo(tickers, start, end, interval):
         threads = 32
     else:
         threads = 8
-    
+
     print('downloading {} stocks from {} to {} using {} threads'.format(len(tickers), start, end, threads))
     return yf.download(tickers, start=start, end=end, interval=interval, threads=threads)
 
@@ -94,8 +95,8 @@ def download_from_yahoo(tickers, start, end, interval):
 def extract_overnight_times_60_min(df):
     df = df["Open"]
 
-    tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30)
-    two_thirty_index = df.index.map(lambda date_time: date_time.hour == 14 and date_time.minute == 30)
+    tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30 and date_time.second == 0)
+    two_thirty_index = df.index.map(lambda date_time: date_time.hour == 14 and date_time.minute == 30 and date_time.second == 0)
 
     prices_morning = df.loc[tenthirty_index, :].copy()
     prices_morning.index = prices_morning.index.map(lambda date_time: date_time.date())
@@ -149,6 +150,9 @@ def download_stock(tickers, start, end):
     # if range_60_min is not None:
     #     df_60_min = download_from_yahoo(tickers, range_60_min[0], range_60_min[1], '60m')
     #     df_60_min = extract_overnight_times_60_min(df_60_min)
+
+
+
 
 
     df_60_min = download_from_yahoo(tickers, start, end + one_day, '60m')
