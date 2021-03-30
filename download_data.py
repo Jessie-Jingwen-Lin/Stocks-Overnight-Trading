@@ -117,17 +117,17 @@ def main():
     loc_dt = datetime.datetime.now(eastern)
     today = loc_dt.date()
 
-    days_ago_1 = today - datetime.timedelta(days=1)
-    days_ago_5 = today - datetime.timedelta(days=5)
+    #days_ago_1 = today - datetime.timedelta(days=1)
+    days_ago_6 = today - datetime.timedelta(days=6)
     days_ago_30 = today - datetime.timedelta(days=30)
     days_ago_90 = today - datetime.timedelta(days=90)
     days_ago_365 = today - datetime.timedelta(days=365)
     days_ago_729 = today - datetime.timedelta(days=729)
 
-    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_1, days_ago_5, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
+    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
-    stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)
-    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_5)
+    #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)
+    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6)
     stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)
     stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90)
     stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365)
@@ -137,13 +137,13 @@ def main():
    
     data_for_webserver = {
         'datetime': loc_dt,
-        'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
+        #'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
         'stocks_data_1w': df_to_list_of_dicts(stats_bymean_5),
         'stocks_data_1m': df_to_list_of_dicts(stats_bymean_30),
         'stocks_data_3m': df_to_list_of_dicts(stats_bymean_90),
         'stocks_data_1y': df_to_list_of_dicts(stats_bymean_365),
         'stocks_data_2y': df_to_list_of_dicts(stats_bymean_729),
-        'stocks_data_mean': df_to_list_of_dicts(((stats_bymean_1+stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/6).dropna())
+        'stocks_data_mean': df_to_list_of_dicts(((stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/5).dropna())
     }
 
     # print(data_for_webserver['stocks_data_mean'])
