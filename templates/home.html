@@ -62,6 +62,10 @@
 			// This is shown in the 2nd example in the documentation: https://datatables.net/reference/api/row().child()
 			// Each entry in the list is a $ tr thingy, as before.
 			// We use <td> instead of <th> for the 2nd cell so that the (1W, 1M, etc.) is shown not in bold.
+
+			// Note that we also make use of so-called "template literals" to make it easier to embed the value_1w_mean
+			// variables, etc. into the string. This is equivalent to the method of using +, but easier to read.
+			// More info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#expression_interpolation
 			return [
 				$(` <tr>
 							<th></th>
