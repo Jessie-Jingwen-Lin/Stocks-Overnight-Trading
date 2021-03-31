@@ -106,12 +106,10 @@
 		}
 
 		$(document).ready(function() {
-			var table = $('#stock_data_table').DataTable();
-		
+
+			var table = null;		
 
 			$('.expand-button').on('click', function() {
-				//alert("going to expand the row now")
-
 				var tr = $(this).closest('tr');
 		        var row = table.row(tr);
 		 
@@ -129,6 +127,8 @@
 		        }
 
 			});
+
+			table = $('#stock_data_table').DataTable();
 
 		});
 	</script>
