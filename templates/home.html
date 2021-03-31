@@ -57,14 +57,44 @@
 	</table>
 
 	<script>
-		function format (value_1w_mean, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean, value_1w_std, value_1m_std, value_3m_std, value_1y_std, value_2y_std, value_1w_sum, value_1m_sum, value_3m_sum, value_1y_sum, value_2y_sum) {
-			return $('<tr>'+'<th></th>'+'<th></th>'+
-                    '<td>1W: ' + value_1w_mean + '<br />1M: '+ value_1m_mean + '<br />3M: '+ value_3m_mean + '<br />1Y: '+ value_1y_mean + '<br />2Y: '+ value_2y_mean + '</td>'+
-                    '<td>1W: ' + value_1w_std + '<br />1M: '+ value_1m_std + '<br />3M: '+ value_3m_std + '<br />1Y: '+ value_1y_std + '<br />2Y: '+ value_2y_std + '</td>'+
-                    '<td>1W: ' + value_1w_sum + '<br />1M: '+ value_1m_sum + '<br />3M: '+ value_3m_sum + '<br />1Y: '+ value_1y_sum + '<br />2Y: '+ value_2y_sum + '</td>'+
-                '</tr>')
-    		//return $('<tr><th></th><th></th><td>1W: + {{value_1w_mean}}, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean</td><td>Y</td><td>Z</td></tr>')
-    		// return '<div>1W Mean Profit Ratio: ' + value_1w_mean + '<br />1M Mean Profit Ratio: ' + value_1m_mean + '<br />3M Mean Profit Ratio:' + value_3m_mean + '<br />1Y Mean Profit Ratio:' + value_1y_mean + '<br />2Y Mean Profit Ratio:'+ value_2y_mean +'</div>';
+		function format(value_1w_mean, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean, value_1w_std, value_1m_std, value_3m_std, value_1y_std, value_2y_std, value_1w_sum, value_1m_sum, value_3m_sum, value_1y_sum, value_2y_sum) {
+			return [
+				$(` <tr>
+							<th></th>
+							<td>1W</td>
+							<td>${value_1w_mean}</td>
+							<td>${value_1w_std}</td>
+							<td>${value_1w_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>1M</td>
+							<td>${value_1m_mean}</td>
+							<td>${value_1m_std}</td>
+							<td>${value_1m_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>3M</td>
+							<td>${value_3m_mean}</td>
+							<td>${value_3m_std}</td>
+							<td>${value_3m_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>1Y</td>
+							<td>${value_1y_mean}</td>
+							<td>${value_1y_std}</td>
+							<td>${value_1y_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>2Y</td>
+							<td>${value_2y_mean}</td>
+							<td>${value_2y_std}</td>
+							<td>${value_2y_sum}</td>
+					  </tr>`)
+			]
 		}
 
 		$(document).ready(function() {
