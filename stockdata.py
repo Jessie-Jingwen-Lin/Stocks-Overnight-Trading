@@ -69,7 +69,7 @@ def fetch_stock_data(tickers, start, end):
     # 01-03-2021  24    18.5           24
     #    ...
 
-    df_morning_afternoon = extract_overnight_times_60_min(df_60_min)
+    df_morning_afternoon = extract_overnight_times_60_min(df_every_60_min)
     
     # We then extract only the dates we want, to make sure there isn't extra stuff in the dataframe
     return df_morning_afternoon.loc[start:end, :]
