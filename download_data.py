@@ -138,6 +138,11 @@ def main():
     data_for_webserver = {
         'datetime': loc_dt,
         #'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
+        'stocks_data_1w_df': stats_bymean_5,
+        'stocks_data_1m_df': stats_bymean_30,
+        'stocks_data_3m_df': stats_bymean_90,
+        'stocks_data_1y_df': stats_bymean_365,
+        'stocks_data_2y_df': stats_bymean_729,
         'stocks_data_1w': df_to_list_of_dicts(stats_bymean_5),
         'stocks_data_1m': df_to_list_of_dicts(stats_bymean_30),
         'stocks_data_3m': df_to_list_of_dicts(stats_bymean_90),

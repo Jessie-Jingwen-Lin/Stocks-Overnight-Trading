@@ -14,31 +14,84 @@
 	  </thead>
 	  <tbody>
 	  	{% for stock_data in stocks_data %}
-		    <tr>
-		      <td>
+
+		  	{% set mean_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+		    <tr data-1w-mean="{{mean_1w}}" data-1w-std="{{std_1w}}" data-1w-sum="{{sum_1w}}" 
+		    	data-1m-mean="{{mean_1m}}" data-1m-std="{{std_1m}}" data-1m-sum="{{sum_1m}}"
+		    	data-3m-mean="{{mean_3m}}" data-3m-std="{{std_3m}}" data-3m-sum="{{sum_3m}}"
+		    	data-1y-mean="{{mean_1y}}" data-1y-std="{{std_1y}}" data-1y-sum="{{sum_1y}}"
+		    	data-2y-mean="{{mean_2y}}" data-2y-std="{{std_2y}}" data-2y-sum="{{sum_2y}}">
+		      <th>
 		      	<button type="button" class="btn btn-secondary expand-button">
                 	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
   						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
 					</svg>
               	</button>
-		      </td>
-		      <th scope="row">{{ stock_data.Stock }}</th>
+		      </th>
+		      <th>{{ stock_data.Stock }}</th>
 		      <td>{{ stock_data.Mean_Profit_Ratio }}</td>
 		      <td>{{ stock_data.Std_Profit_Ratio }}</td>
 		      <td>{{ stock_data.Sum_Profit_Ratio }}</td>
 		    </tr>
+		
 	    {% endfor %}
 	  </tbody>
 	</table>
 
-
 	<script>
-		$(document).ready(function() {
-			$('#stock_data_table').DataTable();
-		});
+		function format (value_1w_mean, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean, value_1w_std, value_1m_std, value_3m_std, value_1y_std, value_2y_std, value_1w_sum, value_1m_sum, value_3m_sum, value_1y_sum, value_2y_sum) {
+			return $('<tr>'+'<th></th>'+'<th></th>'+
+                    '<td>1W: ' + value_1w_mean + '<br />1M: '+ value_1m_mean + '<br />3M: '+ value_3m_mean + '<br />1Y: '+ value_1y_mean + '<br />2Y: '+ value_2y_mean + '</td>'+
+                    '<td>1W: ' + value_1w_std + '<br />1M: '+ value_1m_std + '<br />3M: '+ value_3m_std + '<br />1Y: '+ value_1y_std + '<br />2Y: '+ value_2y_std + '</td>'+
+                    '<td>1W: ' + value_1w_sum + '<br />1M: '+ value_1m_sum + '<br />3M: '+ value_3m_sum + '<br />1Y: '+ value_1y_sum + '<br />2Y: '+ value_2y_sum + '</td>'+
+                '</tr>')
+    		//return $('<tr><th></th><th></th><td>1W: + {{value_1w_mean}}, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean</td><td>Y</td><td>Z</td></tr>')
+    		// return '<div>1W Mean Profit Ratio: ' + value_1w_mean + '<br />1M Mean Profit Ratio: ' + value_1m_mean + '<br />3M Mean Profit Ratio:' + value_3m_mean + '<br />1Y Mean Profit Ratio:' + value_1y_mean + '<br />2Y Mean Profit Ratio:'+ value_2y_mean +'</div>';
+		}
 
-		$('.expand-button').on('click', function() {
-			alert("going to expand the row now")
+		$(document).ready(function() {
+			var table = $('#stock_data_table').DataTable();
+		
+
+			$('.expand-button').on('click', function() {
+				//alert("going to expand the row now")
+
+				var tr = $(this).closest('tr');
+		        var row = table.row(tr);
+		 
+		        if (row.child.isShown()) {
+		            // This row is already open - close it
+		            row.child.hide();
+		            tr.removeClass('shown');
+		        }
+		        else {
+		            // Open this row
+
+		      		row.child(format(tr.data('1w-mean'), tr.data('1m-mean'), tr.data('3m-mean'), tr.data('1y-mean'), tr.data('2y-mean'), tr.data('1w-std'), tr.data('1m-std'), tr.data('3m-std'), tr.data('1y-std'), tr.data('2y-std'), tr.data('1w-sum'), tr.data('1m-sum'), tr.data('3m-sum'), tr.data('1y-sum'), tr.data('2y-sum'))).show()
+		      		
+		            tr.addClass('shown');
+		        }
+
+			});
+
 		});
 	</script>
 
