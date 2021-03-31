@@ -58,6 +58,10 @@
 
 	<script>
 		function format(value_1w_mean, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean, value_1w_std, value_1m_std, value_3m_std, value_1y_std, value_2y_std, value_1w_sum, value_1m_sum, value_3m_sum, value_1y_sum, value_2y_sum) {
+			// We return a list of multiple child rows to add, one for each (1W, 1M, 3M, 1Y, 2Y).
+			// This is shown in the 2nd example in the documentation: https://datatables.net/reference/api/row().child()
+			// Each entry in the list is a $ tr thingy, as before.
+			// We use <td> instead of <th> for the 2nd cell so that the (1W, 1M, etc.) is shown not in bold.
 			return [
 				$(` <tr>
 							<th></th>
