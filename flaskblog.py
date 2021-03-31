@@ -27,11 +27,33 @@ app = Flask(__name__)
 def home():
     with open('data_for_webserver.pkl', 'rb') as f:
         data_for_webserver = pickle.load(f)
-        stocks_data = data_for_webserver['stocks_data_mean']
-        last_updated = data_for_webserver['datetime']
+
+    stocks_data = data_for_webserver['stocks_data_mean']
+    stocks_data_1w_df = data_for_webserver['stocks_data_1w_df']
+    stocks_data_1m_df = data_for_webserver['stocks_data_1m_df']
+    stocks_data_3m_df = data_for_webserver['stocks_data_3m_df']
+    stocks_data_1y_df = data_for_webserver['stocks_data_1y_df']
+    stocks_data_2y_df = data_for_webserver['stocks_data_2y_df']
+    last_updated = data_for_webserver['datetime']
+
+    return render_template('home.html', stocks_data = stocks_data, stocks_data_1w_df = stocks_data_1w_df, 
+        stocks_data_1m_df = stocks_data_1m_df, stocks_data_3m_df = stocks_data_3m_df, stocks_data_1y_df = stocks_data_1y_df,
+        stocks_data_2y_df = stocks_data_2y_df, last_updated = last_updated)
+
+
+
+@app.route("/1w")
+def one_week():
+    with open('data_for_webserver.pkl', 'rb') as f:
+        data_for_webserver = pickle.load(f)
+
+    stocks_data = data_for_webserver['stocks_data_1w']
+    last_updated = data_for_webserver['datetime']
 
 
     return render_template('home.html', stocks_data = stocks_data, last_updated = last_updated)
+
+
 
 
 # @app.route("/about")
