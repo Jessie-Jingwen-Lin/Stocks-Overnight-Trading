@@ -28,8 +28,6 @@ def download_from_yahoo(tickers, start, end, interval):
     return yf.download(tickers, start=start, end=end, interval=interval, threads=threads)
 
 def extract_overnight_times_60_min(df):
-    df = df["Open"]
-
     tenthirty_index = df.index.map(lambda date_time: date_time.hour == 10 and date_time.minute == 30 and date_time.second == 0)
     two_thirty_index = df.index.map(lambda date_time: date_time.hour == 14 and date_time.minute == 30 and date_time.second == 0)
 
@@ -58,7 +56,6 @@ def fetch_stock_data(tickers, start, end):
     # First we download the stock data from yahoo finance, for all the tickers.
     # Note: We add one day to the end date, since sometimes yahoo finance doesn't include the end date.
     df_every_60_min = download_from_yahoo(tickers, start, end + datetime.timedelta(days=1), '60m')
-
 
     # We then use the extract_overnight_times_60_min function to extract the 
     # morning / afternoon times for each day into a dataframe. This dataframe will look like:
