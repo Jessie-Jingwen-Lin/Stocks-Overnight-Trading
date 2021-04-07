@@ -57,6 +57,7 @@ def check_increased_gain(prices_morning, prices_afternoon):
 
 # Note: it must be that stock_price contains at least enough days of data for the days parameter
 def ranking(stock_price, start_day):
+    
     # Create Dictionary
     stock_price = stock_price.loc[start_day:]
 
@@ -88,7 +89,8 @@ def ranking(stock_price, start_day):
 
         mean_profit_ratio = np.nanmean(day_profit)
         std_profit_ratio = np.nanstd(day_profit)
-        sum_profit_ratio = np.nanprod(1 + day_profit) - 1  # np.prod multiply everything in the array
+        #sum_profit_ratio = np.nanprod(1 + day_profit) - 1  # np.prod multiply everything in the array
+        sum_profit_ratio = np.nansum(day_profit)
 
         stats_index.append(ticker)
         stats_mean.append(mean_profit_ratio)
@@ -148,6 +150,7 @@ def main():
         'stocks_data_3m': df_to_list_of_dicts(stats_bymean_90),
         'stocks_data_1y': df_to_list_of_dicts(stats_bymean_365),
         'stocks_data_2y': df_to_list_of_dicts(stats_bymean_729),
+        'stocks_data_mean_df': ((stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/5).dropna(),
         'stocks_data_mean': df_to_list_of_dicts(((stats_bymean_5+stats_bymean_30+stats_bymean_90+stats_bymean_365+stats_bymean_729)/5).dropna())
     }
 
