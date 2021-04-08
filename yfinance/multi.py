@@ -158,7 +158,7 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
                           keys=shared._DFS.keys())
 
     if group_by == 'column':
-        data.columns = data.columns.swaplevel(0, 1)
+        # data.columns = data.columns.swaplevel(0, 1)
         data.sort_index(level=0, axis=1, inplace=True)
 
     return data
@@ -198,7 +198,7 @@ def _download_one_threaded(ticker, start=None, end=None,
     data = _download_one(ticker, start, end, auto_adjust, back_adjust,
                          actions, period, interval, prepost, proxy, rounding)
 
-    return (ticker.upper(), data)
+    return (ticker.upper(), data["Open"].copy())
 
 
 def _download_one(ticker, start=None, end=None,
