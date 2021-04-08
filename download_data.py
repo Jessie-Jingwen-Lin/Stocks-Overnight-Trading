@@ -64,10 +64,10 @@ def ranking(stock_price, start_day):
     # filter the stocks with increased gain
 
     morning_df = stock_price['10:30']
-    afternoon_df = stock_price['15:00']
+    afternoon_df = stock_price['14:30']
     all_downloaded_tickers = morning_df.columns.values
 
-    filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
+    #filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
 
     # filtered_tickers = [c for c in stock_price['10:30'].columns.values if increasedgain_index[c]]
 
@@ -77,7 +77,7 @@ def ranking(stock_price, start_day):
     stats_std = []
     stats_sum = []
 
-    for ticker in filtered_tickers:
+    for ticker in all_downloaded_tickers:
         ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
         ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
 

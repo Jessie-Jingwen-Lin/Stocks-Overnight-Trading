@@ -42,7 +42,7 @@ def extract_overnight_times_60_min(df):
     prices_afternoon = prices_two_thirty
 
     morning_tuples_index = [('10:30', tup) for tup in prices_morning.columns.values]
-    afternoon_tuples_index = [('15:00', tup) for tup in prices_afternoon.columns.values]
+    afternoon_tuples_index = [('14:30', tup) for tup in prices_afternoon.columns.values]
 
     morning_index = pd.MultiIndex.from_tuples(morning_tuples_index)
     afternoon_index = pd.MultiIndex.from_tuples(afternoon_tuples_index)
