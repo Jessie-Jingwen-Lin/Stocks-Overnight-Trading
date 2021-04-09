@@ -128,6 +128,8 @@ def main():
 
     stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
+    print(stock_price)
+
     #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)
     stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6)
     stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)
