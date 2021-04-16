@@ -77,6 +77,8 @@ def ranking(stock_price, start_day):
     stats_std = []
     stats_sum = []
 
+    stock_day_profit = {} # dictionary from ticker name to all day profit ratios
+
     for ticker in all_downloaded_tickers:
         ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
         ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
@@ -96,11 +98,13 @@ def ranking(stock_price, start_day):
         stats_mean.append(mean_profit_ratio)
         stats_std.append(std_profit_ratio)
         stats_sum.append(sum_profit_ratio)
-    
+        stock_day_profit[ticker] = day_profit
+
     stats = pd.DataFrame({'mean_profit_ratio': stats_mean, 'std_profit_ratio': stats_std, 'sum_profit_ratio': stats_sum}, index=stats_index)
+    day_profit_ratio = pd.DataFrame(stock_day_profit)
     # stats_bymean = stats.sort_values(by="mean_profit_ratio", ascending=False)
 
-    return stats
+    return stats, day_profit_ratio
 
 
 def df_to_list_of_dicts(df):
@@ -128,20 +132,46 @@ def main():
 
     stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
-    print(stock_price)
+    #Filter out tickers which have negative daily profit ratio for 1 week.
+    bad_tickers = []
+    day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
+    for col_name in day_profit_ratio_1w_df:
+        ticker_dpr = day_profit_ratio_1w_df[col_name]
+        if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
+            bad_tickers.append(col_name)
 
-    #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)
-    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6)
-    stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)
-    stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90)
-    stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365)
-    stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729)
+    to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
+
+    stock_price = stock_price.drop(columns=to_drop)
+    # stock_price['10:30'] = stock_price['10:30'][new_ticker]
+    # stock_price['14:30'] = stock_price['14:30'][new_ticker]
+
+    print(stock_price)
+    print()
+    print(stock_price['10:30'].isnull().sum(axis=1))
+    print()
+    print(len(stock_price['10:30'].columns))
+    print()
+    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+
+
+    #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)[0]
+    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6)[0]
+    stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)[0]
+    stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90)[0]
+    stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365)[0]
+    stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729)[0]
 
     #print(stats_bymean_30)
    
     data_for_webserver = {
         'datetime': loc_dt,
         #'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
+        'day_profit_1w_df': ranking(stock_price=stock_price, start_day=days_ago_6)[1],
+        'day_profit_1m_df': ranking(stock_price=stock_price, start_day=days_ago_30)[1],
+        'day_profit_3m_df': ranking(stock_price=stock_price, start_day=days_ago_90)[1],
+        'day_profit_1y_df': ranking(stock_price=stock_price, start_day=days_ago_365)[1],
+        'day_profit_2y_df': ranking(stock_price=stock_price, start_day=days_ago_729)[1],
         'stocks_data_1w_df': stats_bymean_5,
         'stocks_data_1m_df': stats_bymean_30,
         'stocks_data_3m_df': stats_bymean_90,
