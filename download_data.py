@@ -142,9 +142,21 @@ def main():
 
     to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
 
+    print("Stock price df BEFORE removing bad tickers:\n")
+    print(stock_price)
+    print()
+    print(stock_price['10:30'].isnull().sum(axis=1))
+    print()
+    print(len(stock_price['10:30'].columns))
+    print()
+    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    print("\n-----------------------\n\n")
+
     stock_price = stock_price.drop(columns=to_drop)
     # stock_price['10:30'] = stock_price['10:30'][new_ticker]
     # stock_price['14:30'] = stock_price['14:30'][new_ticker]
+
+    print("Stock price df AFTER removing bad tickers:\n")
 
     print(stock_price)
     print()
@@ -153,6 +165,7 @@ def main():
     print(len(stock_price['10:30'].columns))
     print()
     print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    print("\n-----------------------\n\n")
 
 
     #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)[0]
