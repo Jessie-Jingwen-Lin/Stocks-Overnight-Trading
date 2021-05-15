@@ -146,6 +146,7 @@ def main():
     # stock_price['10:30'] = stock_price['10:30'][new_ticker]
     # stock_price['14:30'] = stock_price['14:30'][new_ticker]
 
+    print("Transformed data:")
     print(stock_price)
     print()
     print(stock_price['10:30'].isnull().sum(axis=1))
