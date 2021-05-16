@@ -65,7 +65,7 @@ def ranking(stock_price, start_day):
 
     morning_df = stock_price['10:30']
     afternoon_df = stock_price['14:30']
-    all_downloaded_tickers = morning_df.columns.values
+    all_downloaded_tickers = set(morning_df.columns.values).intersection(afternoon_df.columns.values)
 
     #filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
 
@@ -115,7 +115,8 @@ def df_to_list_of_dicts(df):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    # # tickers = tickers[:100] + ['BFT.W']
+    # tickers = tickers[0:60]
+    # tickers = ["AAPL", "MSFT", "TSLA", "FB", "SNE"]
     # # print(tickers)
 
 
@@ -142,13 +143,13 @@ def main():
 
     to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
 
-    print("Stock price df BEFORE removing bad tickers:\n")
-    print(stock_price)
-    print()
-    print(stock_price['10:30'].isnull().sum(axis=1))
-    print()
-    print(len(stock_price['10:30'].columns))
-    print()
+    print("Stock price nans perc. BEFORE removing bad tickers:\n")
+    # print(stock_price)
+    # print()
+    # print(stock_price['10:30'].isnull().sum(axis=1))
+    # print()
+    # print(len(stock_price['10:30'].columns))
+    # print()
     print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
     print("\n-----------------------\n\n")
 
@@ -156,13 +157,13 @@ def main():
     # stock_price['10:30'] = stock_price['10:30'][new_ticker]
     # stock_price['14:30'] = stock_price['14:30'][new_ticker]
 
-    print("Transformed data:")
-    print(stock_price)
-    print()
-    print(stock_price['10:30'].isnull().sum(axis=1))
-    print()
-    print(len(stock_price['10:30'].columns))
-    print()
+    print("Nan perc. after:")
+    # print(stock_price)
+    # print()
+    # print(stock_price['10:30'].isnull().sum(axis=1))
+    # print()
+    # print(len(stock_price['10:30'].columns))
+    # print()
     print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
     print("\n-----------------------\n\n")
 
