@@ -115,7 +115,8 @@ def df_to_list_of_dicts(df):
 
 def main():
     tickers = stockdata.get_all_tickers()
-    # # tickers = tickers[:100] + ['BFT.W']
+    # tickers = ["AAPL", "FB", "MSFT", "TSLA"]
+    # tickers = tickers[:200]
     # # print(tickers)
 
 
