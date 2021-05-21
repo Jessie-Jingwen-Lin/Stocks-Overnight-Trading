@@ -25,7 +25,9 @@ import time as _time
 # import multitasking as _multitasking
 import pandas as _pd
 from multiprocessing import Pool
+from pytz import timezone
 from tqdm.contrib.concurrent import process_map
+from tqdm import tqdm
 
 from . import Ticker, utils
 from . import shared
@@ -41,6 +43,16 @@ class Closure:
 def closure_converted_download_threaded(env, ticker):
     return _download_one_threaded(ticker, **env)
 
+
+
+# https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
+def divide_chunks(l, n):
+    # looping till length l
+    for i in range(0, len(l), n): 
+        yield l[i:i + n]
+
+def merge_keys_dfs(keys_dfs):
+    return _pd.concat(keys_dfs[1], axis=1, keys=keys_dfs[0])
 
 def download(tickers, start=None, end=None, actions=False, threads=True,
              group_by='column', auto_adjust=False, back_adjust=False,
@@ -150,8 +162,12 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
     shared._DFS = {k: v for (k, v) in shared._DFS.items() if ticker_df_filter(k, v)}
 
     try:
-        data = _pd.concat(shared._DFS.values(), axis=1,
-                          keys=shared._DFS.keys())
+        to_merge_keys = list(divide_chunks(list(shared._DFS.keys()), 100))
+        to_merge_vals = list(divide_chunks(list(shared._DFS.values()), 100))
+        merged = list(map(merge_keys_dfs, tqdm(list(zip(to_merge_keys, to_merge_vals)))))
+        data = _pd.concat(merged, axis=1)
+        # data = _pd.concat(shared._DFS.values(), axis=1,
+        #                   keys=shared._DFS.keys())
     except Exception:
         _realign_dfs()
         data = _pd.concat(shared._DFS.values(), axis=1,
@@ -197,8 +213,9 @@ def _download_one_threaded(ticker, start=None, end=None,
 
     data = _download_one(ticker, start, end, auto_adjust, back_adjust,
                          actions, period, interval, prepost, proxy, rounding)
-
-    return (ticker.upper(), data["Open"].copy())
+    opens = data["Open"].copy()
+    opens.index = opens.index.map(lambda dt: dt.astimezone(timezone('US/Eastern')))
+    return (ticker.upper(), opens)
 
 
 def _download_one(ticker, start=None, end=None,
