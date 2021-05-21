@@ -146,12 +146,18 @@ def main():
     print("Stock price df BEFORE removing bad tickers:\n")
     print(stock_price)
     print()
-    print(stock_price['10:30'].isnull().sum(axis=1))
-    print()
-    print(len(stock_price['10:30'].columns))
-    print()
+    # print(stock_price['10:30'].isnull().sum(axis=1))
+    # print()
+    # print(len(stock_price['10:30'].columns))
+    # print()
     print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    print()
+    print("AAPL 10:30 nulls: {}".format(100 * stock_price['10:30']['AAPL'].isnull().mean()))
+    print()
+    print("AAPL 14:30 nulls: {}".format(100 * stock_price['14:30']['AAPL'].isnull().mean()))
     print("\n-----------------------\n\n")
+
+    
 
     stock_price = stock_price.drop(columns=to_drop)
     # stock_price['10:30'] = stock_price['10:30'][new_ticker]
