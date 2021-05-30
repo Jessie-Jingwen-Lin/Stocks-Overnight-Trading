@@ -21,7 +21,7 @@ def get_all_tickers():
 
 def download_from_yahoo(tickers, start, end, interval):
     if sys.platform == 'darwin':
-        threads = 32
+        threads = 1
     else:
         threads = 8
 

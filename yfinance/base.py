@@ -153,7 +153,10 @@ class TickerBase():
         data = None
         for retry in range(retries):
             try:
+                if self.ticker == "AAPL":
+                    print("stuff")
                 data_raw = _requests.get(url=url, params=params, proxies=proxy)
+                # data_raw = _requests.get(url=url, params=params, proxies=proxy, headers={'User-Agent': 'PostmanRuntime/7.26.10', 'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate, br'})
                 if "Will be right back" not in data_raw.text:
                     data = data_raw.json()
                     break

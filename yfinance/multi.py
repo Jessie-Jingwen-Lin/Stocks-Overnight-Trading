@@ -213,8 +213,15 @@ def _download_one_threaded(ticker, start=None, end=None,
 
     data = _download_one(ticker, start, end, auto_adjust, back_adjust,
                          actions, period, interval, prepost, proxy, rounding)
+    if ticker == "AA":
+        print("here")
+    
     opens = data["Open"].copy()
     opens.index = opens.index.map(lambda dt: dt.astimezone(timezone('US/Eastern')))
+
+    # if len(opens.index) > 0:
+    #     print(opens.index[-1])
+
     return (ticker.upper(), opens)
 
 

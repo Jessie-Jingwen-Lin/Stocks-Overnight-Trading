@@ -85,3 +85,5 @@ stocks_data.pkl
 stocks_data_lastupdated.pkl
 
 data_for_webserver.pkl
+
+.ipynb_checkpoints/

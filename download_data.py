@@ -1,4 +1,5 @@
 import subprocess
+from yfinance import ticker
 import pandas as pd
 import numpy as np
 import datetime
@@ -115,8 +116,19 @@ def df_to_list_of_dicts(df):
 
 def main():
     tickers = stockdata.get_all_tickers()
+
+    with open('bad_name_tickers.pkl', 'rb') as f:
+        bad_name_tickers = pickle.load(f)
+    
+    with open('bad_null_tickers.pkl', 'rb') as f:
+        bad_null_tickers = pickle.load(f)
+
+    print(f"{len(tickers)} tickers before filtering")
+    tickers = list(set(tickers) - bad_name_tickers - bad_null_tickers)
+    print(f"{len(tickers)} tickers after filtering")
+
     # tickers = ["AAPL", "FB", "MSFT", "TSLA"]
-    # tickers = tickers[:200]
+    # tickers = tickers[:1000]
     # # print(tickers)
 
 
@@ -142,6 +154,10 @@ def main():
             bad_tickers.append(col_name)
 
     to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
+
+
+    with open('temp_stock_price.pkl', 'wb') as f:
+        pickle.dump(stock_price, f)
 
     print("Stock price df BEFORE removing bad tickers:\n")
     print(stock_price)
