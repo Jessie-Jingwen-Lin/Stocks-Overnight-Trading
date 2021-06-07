@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import datetime
 from pytz import timezone
-import stockdata
+from downloader import stockdata
 import pickle
-
+import argparse
 
 # def choose_std_filter_limit(days, rank):
 #     if days <= 10:
@@ -106,16 +106,16 @@ def ranking(stock_price, start_day):
 
     return stats, day_profit_ratio
 
+def fetch_stock_data_distributed(using_google, tickers, from_date, to_date):
+    if using_google:
+        pass
+    else:
+        stock_price = stockdata.fetch_stock_data(tickers, from_date, to_date)
+    return stock_price
 
-def df_to_list_of_dicts(df):
-    stocks_data = []
-    for i in range(0, df.shape[0]):
-        stocks_data.append({'Stock': df.index[i], 'Mean_Profit_Ratio': df.iloc[i,0], 'Std_Profit_Ratio': df.iloc[i,1], 'Sum_Profit_Ratio': df.iloc[i,2]})
-    return stocks_data
-
-def main():
+def main(using_google):
     tickers = stockdata.get_all_tickers()
-    # tickers = ["AAPL", "FB", "MSFT", "TSLA"]
+    tickers = ["AAPL", "FB", "MSFT", "TSLA"]
     # tickers = tickers[:200]
     # # print(tickers)
 
@@ -131,7 +131,10 @@ def main():
     days_ago_365 = today - datetime.timedelta(days=365)
     days_ago_729 = today - datetime.timedelta(days=729)
 
-    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
+    from_date = days_ago_729
+    to_date = today
+
+    stock_price = fetch_stock_data_distributed(using_google, tickers, from_date, to_date)
 
     #Filter out tickers which have negative daily profit ratio for 1 week.
     bad_tickers = []
@@ -213,5 +216,16 @@ def main():
 
 
 
+def df_to_list_of_dicts(df):
+    stocks_data = []
+    for i in range(0, df.shape[0]):
+        stocks_data.append({'Stock': df.index[i], 'Mean_Profit_Ratio': df.iloc[i,0], 'Std_Profit_Ratio': df.iloc[i,1], 'Sum_Profit_Ratio': df.iloc[i,2]})
+    return stocks_data
+
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--local', dest='use_google', action='store_false')
+    parser.set_defaults(use_google=True)
+    args = parser.parse_args()
+    main(args.use_google)

@@ -2,7 +2,12 @@ import subprocess
 import pandas as pd
 import numpy as np
 import datetime
-import yfinance as yf
+
+try:
+    import yfinance as yf
+except:
+    from downloader import yfinance as yf
+
 from pytz import timezone
 import sys
 import pickle
