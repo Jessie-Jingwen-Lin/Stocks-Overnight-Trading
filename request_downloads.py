@@ -23,7 +23,7 @@ def request_google_download(tickers, from_date, to_date):
   r = requests.post(url, files=files, params={"key": "2MxXduKP4B"})
   bytes = io.BytesIO(r.content)
   results = pickle.load(bytes)
-  print(results)
+  return results
   # print(r.text)
   
 def main():
@@ -31,7 +31,7 @@ def main():
   loc_dt = datetime.datetime.now(eastern)
   today = loc_dt.date()
   days_ago_729 = today - datetime.timedelta(days=729)
-  request_google_download(['AAPL', 'TSLA', 'FB', 'MSFT'], days_ago_729, today)
+  print(request_google_download(['AAPL', 'TSLA', 'FB', 'MSFT'], days_ago_729, today))
 
 if __name__ == "__main__":
   main()
