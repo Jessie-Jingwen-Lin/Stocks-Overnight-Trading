@@ -25,10 +25,12 @@ def get_all_tickers():
     #sort alphabetically #set finds unique items in the list, and combine them together
 
 def download_from_yahoo(tickers, start, end, interval):
-    if sys.platform == 'darwin':
-        threads = 32
-    else:
-        threads = 8
+    # if sys.platform == 'darwin':
+    #     threads = 32
+    # else:
+    #     threads = 8
+
+    threads = 1
 
     print('downloading {} stocks from {} to {} using {} threads'.format(len(tickers), start, end, threads))
     return yf.download(tickers, start=start, end=end, interval=interval, threads=threads)
@@ -63,8 +65,8 @@ def fetch_stock_data(tickers, start, end):
     # Note: We add one day to the end date, since sometimes yahoo finance doesn't include the end date.
     df_every_60_min = download_from_yahoo(tickers, start, end + datetime.timedelta(days=1), '60m')
 
-    print("Direct from yfinance:")
-    print(df_every_60_min)
+    #print("Direct from yfinance:")
+    #print(df_every_60_min)
 
     # We then use the extract_overnight_times_60_min function to extract the 
     # morning / afternoon times for each day into a dataframe. This dataframe will look like:
