@@ -13,14 +13,22 @@ def download_the_tickers(tickers):
   return tickers
 
 @app.route("/", methods=["POST"])
-def hello_world():
+def download_fn():
   key = request.args.get("key")
   if key != "2MxXduKP4B":
     return "Hello World!"
 
   tickers_data = request.files["tickers"]
   tickers = pickle.load(tickers_data)
-  results = download_the_tickers(tickers)
+
+  from_date_data = request.files["from_date"]
+  from_date = pickle.load(from_date_data)
+
+  to_date_data = request.files["to_date"]
+  to_date = pickle.load(to_date_data)
+
+  results = stockdata.fetch_stock_data(tickers, from_date, to_date)
+  
 
   bytes = io.BytesIO()
   pickle.dump(results, bytes)

@@ -6,6 +6,7 @@ from pytz import timezone
 from downloader import stockdata
 import pickle
 import argparse
+from request_downloads import request_google_download
 
 # def choose_std_filter_limit(days, rank):
 #     if days <= 10:
@@ -108,7 +109,7 @@ def ranking(stock_price, start_day):
 
 def fetch_stock_data_distributed(using_google, tickers, from_date, to_date):
     if using_google:
-        pass
+        stock_price = request_google_download(tickers, from_date, to_date)
     else:
         stock_price = stockdata.fetch_stock_data(tickers, from_date, to_date)
     return stock_price

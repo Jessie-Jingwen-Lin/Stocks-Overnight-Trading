@@ -1,4 +1,4 @@
-Flask==1.1.2
+Flask
 numpy
 pandas
 requests==2.25.1

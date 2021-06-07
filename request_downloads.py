@@ -1,12 +1,12 @@
 import requests
 import io
 import pickle
+from pytz import timezone
+import datetime
 
-def request_download(tickers, from_date, to_date):
+def request_google_download(tickers, from_date, to_date):
   url = "https://yf-0-ecf7h7bkga-uc.a.run.app"
   
-  tickers = ["AAPL", "TSLA", "FB"]
-
   bytes = io.BytesIO()
   pickle.dump(tickers, bytes)
   bytes.seek(0)
@@ -26,8 +26,12 @@ def request_download(tickers, from_date, to_date):
   print(results)
   # print(r.text)
   
-
 def main():
-  request_download(['AAPL', 'TSLA', 'FB'], )
+  eastern = timezone('US/Eastern')
+  loc_dt = datetime.datetime.now(eastern)
+  today = loc_dt.date()
+  days_ago_729 = today - datetime.timedelta(days=729)
+  request_google_download(['AAPL', 'TSLA', 'FB', 'MSFT'], days_ago_729, today)
+
 if __name__ == "__main__":
   main()
