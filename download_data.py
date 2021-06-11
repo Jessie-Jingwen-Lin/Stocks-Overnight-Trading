@@ -7,6 +7,7 @@ from downloader import stockdata
 import pickle
 import argparse
 from request_downloads import request_google_download
+from tqdm.contrib.concurrent import process_map
 
 # def choose_std_filter_limit(days, rank):
 #     if days <= 10:
@@ -107,16 +108,74 @@ def ranking(stock_price, start_day):
 
     return stats, day_profit_ratio
 
-def fetch_stock_data_distributed(using_google, tickers, from_date, to_date):
-    if using_google:
-        stock_price = request_google_download(tickers, from_date, to_date)
+CLOUD_RUNNERS = [
+    'https://yf-0-ecf7h7bkga-uc.a.run.app', # us-central1
+    'https://yf-0-ecf7h7bkga-ue.a.run.app', # us-east1
+    'https://yf-0-ecf7h7bkga-uk.a.run.app', # us-east4
+    'https://yf-0-ecf7h7bkga-uw.a.run.app', # us-west1
+    'https://yf-0-ecf7h7bkga-wl.a.run.app', # us-west2
+    'https://yf-0-ecf7h7bkga-wm.a.run.app', # us-west3
+    'https://yf-0-ecf7h7bkga-wn.a.run.app', # us-west4
+    'https://yf-0-ecf7h7bkga-de.a.run.app', # asia-east1
+    'https://yf-0-ecf7h7bkga-an.a.run.app', # asia-northeast1
+    'https://yf-0-ecf7h7bkga-dt.a.run.app', # asia-northeast2
+    'https://yf-0-ecf7h7bkga-lz.a.run.app', # europe-north1
+    'https://yf-0-ecf7h7bkga-ew.a.run.app', # europe-west1
+    'https://yf-0-ecf7h7bkga-ez.a.run.app', # europe-west4
+    'https://yf-0-ecf7h7bkga-df.a.run.app', # asia-east2
+    'https://yf-0-ecf7h7bkga-du.a.run.app', # asia-northeast3
+    'https://yf-0-ecf7h7bkga-as.a.run.app', # asia-southeast1
+]
+
+def divide_chunks_gen(l, n):
+    # looping till length l
+    if len(l) % n == 0:
+        chunk_size = len(l) // n
     else:
-        stock_price = stockdata.fetch_stock_data(tickers, from_date, to_date)
+        chunk_size = len(l) // n + 1
+    
+    for i in range(0, n):
+        yield l[(i*chunk_size):min(i*chunk_size+chunk_size, len(l))]
+
+def divide_chunks(l, n):
+    chunks = list(divide_chunks_gen(l, n))
+    return list(filter(lambda c: len(c) >= 0, chunks))
+
+class Closure:
+    def __init__(self, func, **kwargs):
+        self.func = func
+        self.env = kwargs
+  
+    def __call__(self, x):
+        return self.func(self.env, x)
+
+def closure_converted_request_ticker_chunk_google(env, tickers_url):
+    return request_google_download(tickers_url[0], env['from_date'], env['to_date'], tickers_url[1])
+
+def closure_converted_request_ticker_chunk_local(env, tickers_url):
+    return stockdata.fetch_stock_data(tickers_url[0], env['from_date'], env['to_date'])
+
+def fetch_stock_data_distributed(using_google, tickers, from_date, to_date):
+    ticker_chunks = divide_chunks(tickers, len(CLOUD_RUNNERS))
+    assert len(ticker_chunks) <= len(CLOUD_RUNNERS)
+    the_args = list(zip(ticker_chunks, CLOUD_RUNNERS))
+
+    if using_google:
+        request_ticker_chunk_lambda = Closure(closure_converted_request_ticker_chunk_google, from_date=from_date, to_date=to_date)
+        # stock_price_chunks = map(request_ticker_chunk_lambda, the_args)
+        stock_price_chunks = list(process_map(request_ticker_chunk_lambda, the_args, max_workers=len(the_args), chunksize=1))
+
+    else:
+        request_ticker_chunk_lambda = Closure(closure_converted_request_ticker_chunk_local, from_date=from_date, to_date=to_date)
+        stock_price_chunks = map(request_ticker_chunk_lambda, the_args)
+    
+    stock_price = pd.concat(stock_price_chunks, axis=1)
+    stock_price = stock_price.reindex(sorted(stock_price.columns), axis=1)
     return stock_price
 
 def main(using_google):
     tickers = stockdata.get_all_tickers()
-    tickers = ["AAPL", "FB", "MSFT", "TSLA"]
+    # tickers = ["AAPL", "FB", "MSFT", "TSLA", "TLRY", "SNDL", "ABNB", "DOCU", "ZM"]
     # tickers = tickers[:200]
     # # print(tickers)
 

@@ -119,7 +119,10 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
 
         # with Pool(threads) as p:
             # tuple_results = p.map(download_ticker_lambda, enumerate(tickers))
+
         tuple_results = process_map(download_ticker_lambda, tickers, max_workers=threads, chunksize=1)
+        # tuple_results = map(download_ticker_lambda, tickers)
+
         shared._DFS = dict(tuple_results)
         # print(data)
 
