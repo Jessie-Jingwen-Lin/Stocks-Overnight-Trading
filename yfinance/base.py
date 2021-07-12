@@ -153,7 +153,8 @@ class TickerBase():
         data = None
         for retry in range(retries):
             try:
-                data_raw = _requests.get(url=url, params=params, proxies=proxy)
+                agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+                data_raw = _requests.get(url=url, params=params, proxies=proxy, headers={'User-Agent': agent})
                 if "Will be right back" not in data_raw.text:
                     data = data_raw.json()
                     break
