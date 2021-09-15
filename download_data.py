@@ -84,9 +84,13 @@ def ranking(stock_price, start_day):
         ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
 
         day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
-        num_non_nan = day_profit.shape[0] - np.isnan(day_profit).sum()
+        num_nan = np.isnan(day_profit).sum()
+        num_non_nan = day_profit.shape[0] - num_nan
+        if num_nan > 0:
+            print(f"{ticker} has {num_nan} nans in {day_profit.shape[0]} overnights of data")
         if num_non_nan <= 1:
             # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
+            print(f"  Ignoring {ticker}")
             continue
 
         mean_profit_ratio = np.nanmean(day_profit)
