@@ -5,28 +5,131 @@
 	<table id="stock_data_table" class="table">
 	  <thead>
 	    <tr>
+	      <th scope="col"></th>
 	      <th scope="col">Stock / Ticker</th>
-	      <th scope="col">Mean Profit Ratio</th>
-	      <th scope="col">Std Profit Ratio</th>
-	      <th scope="col">Sum Profit Ratio</th>
+	      <th scope="col">Mean of Mean Profit Ratio</th>
+	      <th scope="col">Mean of Std Profit Ratio</th>
+	      <th scope="col">Mean of Sum Profit Ratio</th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	  	{% for stock_data in stocks_data %}
-		    <tr>
-		      <th scope="row">{{ stock_data.Stock }}</th>
+
+		  	{% set mean_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1w = stocks_data_1w_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1m = stocks_data_1m_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_3m = stocks_data_3m_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_1y = stocks_data_1y_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+
+		  	{% set mean_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'mean_profit_ratio'] %}
+		  	{% set std_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'std_profit_ratio'] %}
+		  	{% set sum_2y = stocks_data_2y_df.loc[stock_data['Stock'], 'sum_profit_ratio'] %}
+		    <tr data-1w-mean="{{mean_1w}}" data-1w-std="{{std_1w}}" data-1w-sum="{{sum_1w}}" 
+		    	data-1m-mean="{{mean_1m}}" data-1m-std="{{std_1m}}" data-1m-sum="{{sum_1m}}"
+		    	data-3m-mean="{{mean_3m}}" data-3m-std="{{std_3m}}" data-3m-sum="{{sum_3m}}"
+		    	data-1y-mean="{{mean_1y}}" data-1y-std="{{std_1y}}" data-1y-sum="{{sum_1y}}"
+		    	data-2y-mean="{{mean_2y}}" data-2y-std="{{std_2y}}" data-2y-sum="{{sum_2y}}">
+		      <th>
+		      	<button type="button" class="btn btn-secondary expand-button">
+                	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+  						<path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
+					</svg>
+              	</button>
+		      </th>
+		      <th>{{ stock_data.Stock }}</th>
 		      <td>{{ stock_data.Mean_Profit_Ratio }}</td>
 		      <td>{{ stock_data.Std_Profit_Ratio }}</td>
 		      <td>{{ stock_data.Sum_Profit_Ratio }}</td>
 		    </tr>
+		
 	    {% endfor %}
 	  </tbody>
 	</table>
 
-
 	<script>
+		function format(value_1w_mean, value_1m_mean, value_3m_mean, value_1y_mean, value_2y_mean, value_1w_std, value_1m_std, value_3m_std, value_1y_std, value_2y_std, value_1w_sum, value_1m_sum, value_3m_sum, value_1y_sum, value_2y_sum) {
+			// We return a list of multiple child rows to add, one for each (1W, 1M, 3M, 1Y, 2Y).
+			// This is shown in the 2nd example in the documentation: https://datatables.net/reference/api/row().child()
+			// Each entry in the list is a $ tr thingy, as before.
+			// We use <td> instead of <th> for the 2nd cell so that the (1W, 1M, etc.) is shown not in bold.
+
+			// Note that we also make use of so-called "template literals" to make it easier to embed the value_1w_mean
+			// variables, etc. into the string. This is equivalent to the method of using +, but easier to read.
+			// More info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#expression_interpolation
+			return [
+				$(` <tr>
+							<th></th>
+							<td>1W</td>
+							<td>${value_1w_mean}</td>
+							<td>${value_1w_std}</td>
+							<td>${value_1w_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>1M</td>
+							<td>${value_1m_mean}</td>
+							<td>${value_1m_std}</td>
+							<td>${value_1m_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>3M</td>
+							<td>${value_3m_mean}</td>
+							<td>${value_3m_std}</td>
+							<td>${value_3m_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>1Y</td>
+							<td>${value_1y_mean}</td>
+							<td>${value_1y_std}</td>
+							<td>${value_1y_sum}</td>
+					  </tr>`),
+				$(` <tr>
+							<th></th>
+							<td>2Y</td>
+							<td>${value_2y_mean}</td>
+							<td>${value_2y_std}</td>
+							<td>${value_2y_sum}</td>
+					  </tr>`)
+			]
+		}
+
 		$(document).ready(function() {
-			$('#stock_data_table').DataTable();
+
+			var table = null;		
+
+			$('.expand-button').on('click', function() {
+				var tr = $(this).closest('tr');
+		        var row = table.row(tr);
+		 
+		        if (row.child.isShown()) {
+		            // This row is already open - close it
+		            row.child.hide();
+		            tr.removeClass('shown');
+		        }
+		        else {
+		            // Open this row
+
+		      		row.child(format(tr.data('1w-mean'), tr.data('1m-mean'), tr.data('3m-mean'), tr.data('1y-mean'), tr.data('2y-mean'), tr.data('1w-std'), tr.data('1m-std'), tr.data('3m-std'), tr.data('1y-std'), tr.data('2y-std'), tr.data('1w-sum'), tr.data('1m-sum'), tr.data('3m-sum'), tr.data('1y-sum'), tr.data('2y-sum'))).show()
+		      		
+		            tr.addClass('shown');
+		        }
+
+			});
+
+			table = $('#stock_data_table').DataTable();
+
 		});
 	</script>
 
