@@ -1,3 +1,5 @@
+#this file process the data and saves data in pickle format 
+# for the website to load
 import subprocess
 import pandas as pd
 import numpy as np
@@ -28,32 +30,77 @@ import pickle
 #                 pass
 #     return ___
 
-def check_increased_gain(prices_morning, prices_afternoon):
-    first_idx = prices_morning.first_valid_index()
-    last_idx_3 = prices_afternoon.last_valid_index()
-    last_idx_1030 = prices_morning.last_valid_index()
+def check_increased_gain(stock_price, prices_morning, prices_afternoon):#check if it's positive return over the whole time period(2yrs?)
+    # Create Dictionary
+    stock_price = stock_price.loc[start_day:]
 
-    first_price = None
-    last_price = None
-    if first_idx is not None:
-        first_price = prices_morning[first_idx]
+    # filter the stocks with positive daily profit ratio
 
-    if (last_idx_3 is not None) and (last_idx_1030 is not None):
-        if last_idx_3 > last_idx_1030:
-            last_price = prices_afternoon[last_idx_3]
-        elif last_idx_3 < last_idx_1030:
-            last_price = prices_morning[last_idx_1030]
-        else: # (last_idx_3 == last_idx_1030)
-            last_price = prices_afternoon[last_idx_3]
-    elif (last_idx_3 is not None) and (last_idx_1030 is None):
-        last_price = prices_afternoon[last_idx_3]
-    elif (last_idx_3 is None) and (last_idx_1030 is not None):
-        last_price = prices_morning[last_idx_1030]
+    morning_df = stock_price['9:30']
+    afternoon_df = stock_price['14:30']
+    all_downloaded_tickers = morning_df.columns.values
 
-    if (first_price is None) or (last_price is None):
-        return False
-    else:
-        return first_price < last_price
+    for ticker in all_downloaded_tickers:
+
+        ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
+        ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
+
+        day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
+        num_nan = np.isnan(day_profit).sum()
+        num_non_nan = day_profit.shape[0] - num_nan
+
+        if num_nan > 0: #optional????
+            print(f"{ticker} has {num_nan} nans in {day_profit.shape[0]} overnights of data")
+        if num_non_nan <= 1:
+            # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
+            print(f"  Ignoring {ticker}")
+            continue
+#--------
+#rewrite code below; get last 6 days(1w) day_profit by indexing day_profit above? then filter based on below
+#clean code then run to check on structure of day_profit
+#--------
+     #Filter out tickers which have negative daily profit ratio for 1 week.
+    bad_tickers = []
+    day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
+    for col_name in day_profit_ratio_1w_df:
+        ticker_dpr = day_profit_ratio_1w_df[col_name]
+        #if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
+        if sum(ticker_dpr < 0) != 0: #ticker will be dropped if ticker_dpr > = one day of negative returns
+            bad_tickers.append(col_name)
+
+    to_drop = [('9:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
+    stock_price = stock_price.drop(columns=to_drop)
+
+
+
+#     first_idx = prices_morning.first_valid_index()
+#     last_idx_3 = prices_afternoon.last_valid_index()
+#     last_idx_930 = prices_morning.last_valid_index()
+
+#     first_price = None
+#     last_price = None
+#     if first_idx is not None:
+#         first_price = prices_morning[first_idx]
+
+#     if (last_idx_3 is not None) and (last_idx_930 is not None):
+#         if last_idx_3 > last_idx_930:
+#             last_price = prices_afternoon[last_idx_3]
+#         elif last_idx_3 < last_idx_930:
+#             last_price = prices_morning[last_idx_930]
+#         else: # (last_idx_3 == last_idx_930)
+#             last_price = prices_afternoon[last_idx_3]
+#     elif (last_idx_3 is not None) and (last_idx_930 is None):
+#         last_price = prices_afternoon[last_idx_3]
+#     elif (last_idx_3 is None) and (last_idx_930 is not None):
+#         last_price = prices_morning[last_idx_930]
+
+#     if (first_price is None) or (last_price is None):
+#         return False
+#     else:
+#         return first_price < last_price
+#------------
+#replace all codes with filtering function
+#------------
 
 # Note: it must be that stock_price contains at least enough days of data for the days parameter
 def ranking(stock_price, start_day):
@@ -63,14 +110,13 @@ def ranking(stock_price, start_day):
 
     # filter the stocks with increased gain
 
-    morning_df = stock_price['10:30']
+    morning_df = stock_price['9:30']
     afternoon_df = stock_price['14:30']
     all_downloaded_tickers = morning_df.columns.values
 
     #filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
-
-    # filtered_tickers = [c for c in stock_price['10:30'].columns.values if increasedgain_index[c]]
-
+    
+    #useless??? filtered_tickers = [c for c in stock_price['9:30'].columns.values if increasedgain_index[c]]
 
     stats_index = []
     stats_mean = []
@@ -79,20 +125,22 @@ def ranking(stock_price, start_day):
 
     stock_day_profit = {} # dictionary from ticker name to all day profit ratios
 
-    for ticker in all_downloaded_tickers:
-        ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
-        ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
+    # for ticker in all_downloaded_tickers:
+    #     ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
+    #     ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
 
-        day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
-        num_nan = np.isnan(day_profit).sum()
-        num_non_nan = day_profit.shape[0] - num_nan
-        if num_nan > 0:
-            print(f"{ticker} has {num_nan} nans in {day_profit.shape[0]} overnights of data")
-        if num_non_nan <= 1:
-            # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
-            print(f"  Ignoring {ticker}")
-            continue
-
+    #     day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
+    #     num_nan = np.isnan(day_profit).sum()
+    #     num_non_nan = day_profit.shape[0] - num_nan
+    #     if num_nan > 0:
+    #         print(f"{ticker} has {num_nan} nans in {day_profit.shape[0]} overnights of data")
+    #     if num_non_nan <= 1:
+    #         # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
+    #         print(f"  Ignoring {ticker}")
+    #         continue
+#-----------
+#move up to filtering function
+#------------
         mean_profit_ratio = np.nanmean(day_profit)
         std_profit_ratio = np.nanstd(day_profit)
         #sum_profit_ratio = np.nanprod(1 + day_profit) - 1  # np.prod multiply everything in the array
@@ -138,43 +186,45 @@ def main():
     stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
     #Filter out tickers which have negative daily profit ratio for 1 week.
-    bad_tickers = []
-    day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
-    for col_name in day_profit_ratio_1w_df:
-        ticker_dpr = day_profit_ratio_1w_df[col_name]
-        if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
-            bad_tickers.append(col_name)
+    # bad_tickers = []
+    # day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
+    # for col_name in day_profit_ratio_1w_df:
+    #     ticker_dpr = day_profit_ratio_1w_df[col_name]
+    #     if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
+    #         bad_tickers.append(col_name)
 
-    to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
-
+    # to_drop = [('9:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
+#----------
+#move up to the filtering function
+#----------
     print("Stock price df BEFORE removing bad tickers:\n")
     print(stock_price)
     print()
-    # print(stock_price['10:30'].isnull().sum(axis=1))
+    # print(stock_price['9:30'].isnull().sum(axis=1))
     # print()
-    # print(len(stock_price['10:30'].columns))
+    # print(len(stock_price['9:30'].columns))
     # print()
-    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    print(stock_price['9:30'].isnull().sum(axis=1)/len(stock_price['9:30'].columns))
     print()
-    print("AAPL 10:30 nulls: {}".format(100 * stock_price['10:30']['AAPL'].isnull().mean()))
+    print("AAPL 9:30 nulls: {}".format(100 * stock_price['9:30']['AAPL'].isnull().mean()))
     print()
     print("AAPL 14:30 nulls: {}".format(100 * stock_price['14:30']['AAPL'].isnull().mean()))
     print("\n-----------------------\n\n")
 
     
 
-    stock_price = stock_price.drop(columns=to_drop)
-    # stock_price['10:30'] = stock_price['10:30'][new_ticker]
+    # stock_price = stock_price.drop(columns=to_drop)
+    # stock_price['9:30'] = stock_price['9:30'][new_ticker]
     # stock_price['14:30'] = stock_price['14:30'][new_ticker]
 
     print("Transformed data:")
     print(stock_price)
     print()
-    print(stock_price['10:30'].isnull().sum(axis=1))
+    print(stock_price['9:30'].isnull().sum(axis=1))
     print()
-    print(len(stock_price['10:30'].columns))
+    print(len(stock_price['9:30'].columns))
     print()
-    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    print(stock_price['9:30'].isnull().sum(axis=1)/len(stock_price['9:30'].columns))
     print("\n-----------------------\n\n")
 
 
