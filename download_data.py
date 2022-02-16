@@ -142,7 +142,8 @@ def main():
     day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
     for col_name in day_profit_ratio_1w_df:
         ticker_dpr = day_profit_ratio_1w_df[col_name]
-        if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
+        #if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
+        if sum(ticker_dpr < 0) > 0:
             bad_tickers.append(col_name)
 
     to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
@@ -154,12 +155,12 @@ def main():
     # print()
     # print(len(stock_price['10:30'].columns))
     # print()
-    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
-    print()
-    print("AAPL 10:30 nulls: {}".format(100 * stock_price['10:30']['AAPL'].isnull().mean()))
-    print()
-    print("AAPL 14:30 nulls: {}".format(100 * stock_price['14:30']['AAPL'].isnull().mean()))
-    print("\n-----------------------\n\n")
+    # print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    # print()
+    # print("AAPL 10:30 nulls: {}".format(100 * stock_price['10:30']['AAPL'].isnull().mean()))
+    # print()
+    # print("AAPL 14:30 nulls: {}".format(100 * stock_price['14:30']['AAPL'].isnull().mean()))
+    # print("\n-----------------------\n\n")
 
     
 

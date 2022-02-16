@@ -16,7 +16,13 @@ def get_all_tickers():
     stocknames2 = stocknames2.loc[stocknames2['Test Issue']=='N',:]
     stocknames1 = stocknames1['Symbol']
     stocknames2 = stocknames2['ACT Symbol']
-    return sorted(list(set(list(stocknames1) + list(stocknames2)))) 
+
+    #debug
+    #print(sorted(list(set(list(stocknames1) + list(stocknames2))))[:10])
+    
+
+    return sorted(list(set(list(stocknames1) + list(stocknames2))))[:10]
+    
     #sort alphabetically #set finds unique items in the list, and combine them together
 
 def download_from_yahoo(tickers, start, end, interval):
