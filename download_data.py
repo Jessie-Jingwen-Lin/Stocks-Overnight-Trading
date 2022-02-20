@@ -56,21 +56,20 @@ def check_increased_gain(prices_morning, prices_afternoon):
         return first_price < last_price
 
 # Note: it must be that stock_price contains at least enough days of data for the days parameter
-def ranking(stock_price, start_day):
+def ranking(stock_price, start_day, number_of_downloaded_tickers, morning_time):
     
     # Create Dictionary
     stock_price = stock_price.loc[start_day:]
 
     # filter the stocks with increased gain
-
-    morning_df = stock_price['10:30']
+    prices_morning_time = f'{morning_time[0]}:{morning_time[1]}'
+    morning_df = stock_price[prices_morning_time]
     afternoon_df = stock_price['14:30']
     all_downloaded_tickers = morning_df.columns.values
 
     #filtered_tickers = [c for c in all_downloaded_tickers if check_increased_gain(morning_df[c], afternoon_df[c])]
 
     # filtered_tickers = [c for c in stock_price['10:30'].columns.values if increasedgain_index[c]]
-
 
     stats_index = []
     stats_mean = []
@@ -79,18 +78,26 @@ def ranking(stock_price, start_day):
 
     stock_day_profit = {} # dictionary from ticker name to all day profit ratios
 
+    number_of_ignored_tickers = 0
+    number_over_50Null = 0 #number_of_tickers_with>50%_null
+
     for ticker in all_downloaded_tickers:
         ticker_today_morning_prices = morning_df[ticker].iloc[1:].values
         ticker_yesterday_afternoon_prices = afternoon_df[ticker].iloc[:-1].values
 
         day_profit = (ticker_today_morning_prices - ticker_yesterday_afternoon_prices) / ticker_yesterday_afternoon_prices
+        day_profit_size = day_profit.shape[0]
         num_nan = np.isnan(day_profit).sum()
         num_non_nan = day_profit.shape[0] - num_nan
-        if num_nan > 0:
-            print(f"{ticker} has {num_nan} nans in {day_profit.shape[0]} overnights of data")
+
+        null_ratio = num_nan / day_profit_size
+        if null_ratio > 0.5:
+            #keep track of number of tickers with over 50% Null 
+            number_over_50Null += 1
+    
         if num_non_nan <= 1:
             # If we have only 0 or 1 day(s) of data, then filter it out, since we can't calculate STD
-            print(f"  Ignoring {ticker}")
+            number_of_ignored_tickers += 1
             continue
 
         mean_profit_ratio = np.nanmean(day_profit)
@@ -103,6 +110,20 @@ def ranking(stock_price, start_day):
         stats_std.append(std_profit_ratio)
         stats_sum.append(sum_profit_ratio)
         stock_day_profit[ticker] = day_profit
+
+    eastern = timezone('US/Eastern')
+    loc_dt = datetime.datetime.now(eastern)
+    today = loc_dt.date()
+
+    time_period = today - start_day
+
+    ignored_tickers_ratio = number_of_ignored_tickers / number_of_downloaded_tickers
+    #ratio of tickers that have over 50% Null in all downloaded tickers
+    over50Null_ratio = number_over_50Null / number_of_downloaded_tickers 
+
+    print(f"{number_of_downloaded_tickers} tickers are downloaded")
+    print(f"{number_of_ignored_tickers} tickers ({ignored_tickers_ratio} tickers) are filtered out, because there is only 0 or 1 day of data over {time_period}")
+    print(f"{number_over_50Null} tickers ({over50Null_ratio} tickers) with > 50% Null over {time_period}")
 
     stats = pd.DataFrame({'mean_profit_ratio': stats_mean, 'std_profit_ratio': stats_std, 'sum_profit_ratio': stats_sum}, index=stats_index)
     day_profit_ratio = pd.DataFrame(stock_day_profit)
@@ -118,11 +139,31 @@ def df_to_list_of_dicts(df):
     return stocks_data
 
 def main():
+    #TODO:------
+    eastern = timezone('US/Eastern')
+    loc_dt = datetime.datetime.now(eastern)
+    today = loc_dt.date()
+    benchmark_StartDate = today - datetime.timedelta(days=6)
+    benchmark_price = stockdata.fetch_stock_data(tickers = ["VOO"], start = benchmark_StartDate, end = today, morning_time = [10, 30, 0])
+    print(f"TESTING!!!!!VOO{benchmark_price}")
+
+    Benchmark_MorningPrice = benchmark_price.iloc[0, 0]
+    Benchmark_AfternoonPrice = benchmark_price.iloc[-1, -1]
+    Benchmark_Performance = Benchmark_AfternoonPrice - Benchmark_MorningPrice
+
+    print(Benchmark_Performance)
+
+    if Benchmark_Performance > 0:
+        morning_time = [9, 30, 0] #hour: 9, minute: 30, second: 0
+    else:
+        morning_time = [10, 30, 0]
+    #-------------
+    prices_morning_time = f'{morning_time[0]}:{morning_time[1]}'
+
     tickers = stockdata.get_all_tickers()
     # tickers = ["AAPL", "FB", "MSFT", "TSLA"]
     # tickers = tickers[:200]
-    # # print(tickers)
-
+    number_of_downloaded_tickers = len(tickers)
 
     eastern = timezone('US/Eastern')
     loc_dt = datetime.datetime.now(eastern)
@@ -135,22 +176,24 @@ def main():
     days_ago_365 = today - datetime.timedelta(days=365)
     days_ago_729 = today - datetime.timedelta(days=729)
 
-    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
+    start = min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729)
+
+    stock_price = stockdata.fetch_stock_data(tickers = tickers, start = start, end = today, morning_time = morning_time)
 
     #Filter out tickers which have negative daily profit ratio for 1 week.
     bad_tickers = []
-    day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6)[1]
+    day_profit_ratio_1w_df = ranking(stock_price=stock_price, start_day=days_ago_6, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1]
     for col_name in day_profit_ratio_1w_df:
         ticker_dpr = day_profit_ratio_1w_df[col_name]
         #if sum((ticker_dpr >= 0) | (ticker_dpr.isnull() == True)) != len(ticker_dpr):
         if sum(ticker_dpr < 0) > 0:
             bad_tickers.append(col_name)
 
-    to_drop = [('10:30', to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
+    to_drop = [(prices_morning_time, to_drop) for to_drop in bad_tickers] + [('14:30', to_drop) for to_drop in bad_tickers]
 
-    print("Stock price df BEFORE removing bad tickers:\n")
-    print(stock_price)
-    print()
+    # print("Stock price df BEFORE removing bad tickers:\n")
+    # print(stock_price)
+    # print()
     # print(stock_price['10:30'].isnull().sum(axis=1))
     # print()
     # print(len(stock_price['10:30'].columns))
@@ -168,34 +211,34 @@ def main():
     # stock_price['10:30'] = stock_price['10:30'][new_ticker]
     # stock_price['14:30'] = stock_price['14:30'][new_ticker]
 
-    print("Transformed data:")
-    print(stock_price)
-    print()
-    print(stock_price['10:30'].isnull().sum(axis=1))
-    print()
-    print(len(stock_price['10:30'].columns))
-    print()
-    print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
-    print("\n-----------------------\n\n")
+    # print("Transformed data:")
+    # print(stock_price)
+    # print()
+    # print(stock_price['10:30'].isnull().sum(axis=1))
+    # print()
+    # print(len(stock_price['10:30'].columns))
+    # print()
+    # print(stock_price['10:30'].isnull().sum(axis=1)/len(stock_price['10:30'].columns))
+    # print("\n-----------------------\n\n")
 
 
-    #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1)[0]
-    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6)[0]
-    stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30)[0]
-    stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90)[0]
-    stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365)[0]
-    stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729)[0]
+    #stats_bymean_1 = ranking(stock_price=stock_price, start_day=days_ago_1, number_of_downloaded_tickers)[0]
+    stats_bymean_5 = ranking(stock_price=stock_price, start_day=days_ago_6, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[0]
+    stats_bymean_30 = ranking(stock_price=stock_price, start_day=days_ago_30, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[0]
+    stats_bymean_90 = ranking(stock_price=stock_price, start_day=days_ago_90, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[0]
+    stats_bymean_365 = ranking(stock_price=stock_price, start_day=days_ago_365, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[0]
+    stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[0]
 
-    #print(stats_bymean_30)
+
    
     data_for_webserver = {
         'datetime': loc_dt,
         #'stocks_data_1d': df_to_list_of_dicts(stats_bymean_1),
-        'day_profit_1w_df': ranking(stock_price=stock_price, start_day=days_ago_6)[1],
-        'day_profit_1m_df': ranking(stock_price=stock_price, start_day=days_ago_30)[1],
-        'day_profit_3m_df': ranking(stock_price=stock_price, start_day=days_ago_90)[1],
-        'day_profit_1y_df': ranking(stock_price=stock_price, start_day=days_ago_365)[1],
-        'day_profit_2y_df': ranking(stock_price=stock_price, start_day=days_ago_729)[1],
+        'day_profit_1w_df': ranking(stock_price=stock_price, start_day=days_ago_6, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1],
+        'day_profit_1m_df': ranking(stock_price=stock_price, start_day=days_ago_30, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1],
+        'day_profit_3m_df': ranking(stock_price=stock_price, start_day=days_ago_90, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1],
+        'day_profit_1y_df': ranking(stock_price=stock_price, start_day=days_ago_365, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1],
+        'day_profit_2y_df': ranking(stock_price=stock_price, start_day=days_ago_729, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)[1],
         'stocks_data_1w_df': stats_bymean_5,
         'stocks_data_1m_df': stats_bymean_30,
         'stocks_data_3m_df': stats_bymean_90,
