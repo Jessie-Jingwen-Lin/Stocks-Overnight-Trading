@@ -186,6 +186,9 @@ def main():
     stats_bymean_729 = ranking(stock_price=stock_price, start_day=days_ago_729)[0]
 
     #print(stats_bymean_30)
+
+    with open('stock_price_df.pkl', 'wb') as f:
+        pickle.dump(stock_price, f)
    
     data_for_webserver = {
         'datetime': loc_dt,

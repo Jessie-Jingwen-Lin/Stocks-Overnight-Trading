@@ -2544,8 +2544,6 @@ GOAC|GO Acquisition Corp. Class A Common Stock|N|GOAC|N|100|N|GOAC
 GOAC.U|GO Acquisition Corp. Units, each consisting of one share of Class A Common Stock and one-third of one Warrant|N|GOAC.U|N|100|N|GOAC=
 GOAC.W|GO Acquisition Corp. Warrants, each whole warrant exercisable for one share of Class A Common Stock at an exercise price of $11.50|N|GOAC.WS|N|100|N|GOAC+
 GOAU|US Global GO Gold and Precious Metal Miners ETF|P|GOAU|Y|100|N|GOAU
-GOED|1847 Goedeker Inc. Commom Stock|A|GOED|N|100|N|GOED
-GOED.W|1847 Goedeker Inc. Warrants to Purchase Common Stock|A|GOED.WS|N|100|N|GOED+
 GOEX|Global X Gold Explorers ETF|P|GOEX|Y|100|N|GOEX
 GOF|Guggenheim Strategic Opportunities Fund Common Shares of Beneficial Interest|N|GOF|N|100|N|GOF
 GOGN|GoGreen Investments Corporation Class A Ordinary Shares|N|GOGN|N|100|N|GOGN
@@ -2607,7 +2605,7 @@ GSID|Goldman Sachs MarketBeta International Equity ETF|Z|GSID|Y|100|N|GSID
 GSIE|Goldman Sachs ActiveBeta International Equity ETF|P|GSIE|Y|100|N|GSIE
 GSIG|Golden Sachs ETF Trust Goldman Sachs Access Investment Grade Corporate 1-5 Year Bond ETF|P|GSIG|Y|100|N|GSIG
 GSJY|Goldman Sachs ActiveBeta Japan Equity ETF|P|GSJY|Y|100|N|GSJY
-GSK.V|GSK plc American Depositary Shares (Each representing two Ordinary Shares) When-Issued|N|GSKw|N|100|N|GSK#
+GSK|GSK plc American Depositary Shares (Each representing two Ordinary Shares)|N|GSK|N|100|N|GSK
 GSL|Global Ship Lease Inc New Class A Common Shares|N|GSL|N|100|N|GSL
 GSL$B|Global Ship Lease, Inc. Depository Shares Representing 1/100th Perpetual Preferred Series B% (Marshall Island)|N|GSLpB|N|100|N|GSL-B
 GSLC|Goldman Sachs ActiveBeta U.S. Large Cap Equity ETF|P|GSLC|Y|100|N|GSLC
@@ -2750,7 +2748,7 @@ HLI|Houlihan Lokey, Inc. Class A Common Stock|N|HLI|N|100|N|HLI
 HLIO|Helios Technologies, Inc. Common Stock|N|HLIO|N|100|N|HLIO
 HLLY|Holley Inc. Common Stock|N|HLLY|N|100|N|HLLY
 HLLY.W|Holley Inc. Warrants|N|HLLY.WS|N|100|N|HLLY+
-HLN.V|Haleon plc American Depositary Shares (Each representing two Ordinary Shares) When-Issued|N|HLNw|N|100|N|HLN#
+HLN|Haleon plc American Depositary Shares (Each representing two Ordinary Shares)|N|HLN|N|100|N|HLN
 HLT|Hilton Worldwide Holdings Inc. Common Stock |N|HLT|N|100|N|HLT
 HLX|Helix Energy Solutions Group, Inc. Common Stock|N|HLX|N|100|N|HLX
 HMA|Heartland Media Acquisition Corp. Class A Common Stock|N|HMA|N|100|N|HMA
@@ -4581,6 +4579,8 @@ PNTM.U|Pontem Corporation Units, each consisting of one Class A ordinary share, 
 PNTM.W|Pontem Corporation Warrants, each whole warrant exercisable for one Class A ordinary share at an exercise price of $11.50|N|PNTM.WS|N|100|N|PNTM+
 PNW|Pinnacle West Capital Corporation Common Stock|N|PNW|N|100|N|PNW
 POCT|Innovator U.S. Equity Power Buffer ETF - October|Z|POCT|Y|100|N|POCT
+POL|Polished Inc. Common Stock|A|POL|N|100|N|POL
+POL.W|Polished Inc. Warrants to Purchase Common Stock|A|POL.WS|N|100|N|POL+
 POLY|Plantronics, Inc. Common Stock|N|POLY|N|100|N|POLY
 POND|Angel Pond Holdings Corporation Class A Ordinary Shares|N|POND|N|100|N|POND
 POND.U|Angel Pond Holdings Corporation Units, each consisting of one Class A ordinary share and one-third of one redeemable warrant|N|POND.U|N|100|N|POND=
@@ -6492,4 +6492,4 @@ ZVV|NYSE ARCA test stock|P|ZVV|N|100|Y|ZVV
 ZWS|Zurn Elkay Water Solutions Corporation Common Stock|N|ZWS|N|100|N|ZWS
 ZXIET|IEX Test Company Test Symbol Three for IEX|V|ZXIET|N|100|Y|ZXIET
 ZYME|Zymeworks Inc. Common Shares|N|ZYME|N|100|N|ZYME
-File Creation Time: 0721202211:01||||||
+File Creation Time: 0722202221:31||||||
