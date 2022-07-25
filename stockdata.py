@@ -8,10 +8,11 @@ import sys
 import pickle
 
 def get_all_tickers():
+    ok_na = ['-1.#IND', '1.#QNAN', '1.#IND', '-1.#QNAN', '#N/A N/A', '#N/A', 'N/A', 'n/a', '<NA>', '#NA', '-NaN', '-nan', '']
     subprocess.call('curl ftp://ftp.nasdaqtrader.com/SymbolDirectory/nasdaqlisted.txt > nasdaq_stocknames1', shell = True)
     subprocess.call('curl ftp://ftp.nasdaqtrader.com/SymbolDirectory/otherlisted.txt > nasdaq_stocknames2', shell = True)
-    stocknames1 = pd.read_csv('nasdaq_stocknames1', delimiter = '|')
-    stocknames2 = pd.read_csv('nasdaq_stocknames2', delimiter = '|')
+    stocknames1 = pd.read_csv('nasdaq_stocknames1', delimiter = '|', keep_default_na=False, na_values=ok_na)
+    stocknames2 = pd.read_csv('nasdaq_stocknames2', delimiter = '|', keep_default_na=False, na_values=ok_na)
     stocknames1 = stocknames1.loc[stocknames1['Test Issue']=='N',:] #get rid of Test Issue = Y
     stocknames2 = stocknames2.loc[stocknames2['Test Issue']=='N',:]
     stocknames1 = stocknames1['Symbol']
