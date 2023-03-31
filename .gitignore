@@ -77,3 +77,6 @@ __pycache__/
 venv/
 
 .ipynb_checkpoints/
+
+nasdaq_stocknames1
+nasdaq_stocknames2
