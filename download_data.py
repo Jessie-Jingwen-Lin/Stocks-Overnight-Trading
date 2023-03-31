@@ -238,6 +238,9 @@ def main():
     table_90 = ranking(stock_price=stock_price, start_day=days_ago_90, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)
     table_365 = ranking(stock_price=stock_price, start_day=days_ago_365, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)
     table_729 = ranking(stock_price=stock_price, start_day=days_ago_729, number_of_downloaded_tickers = number_of_downloaded_tickers, morning_time = morning_time)
+
+    with open('stock_price_df.pkl', 'wb') as f:
+        pickle.dump(stock_price, f)
    
     data_for_webserver = {
         'datetime': loc_dt,
