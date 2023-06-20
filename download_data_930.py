@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 from pytz import timezone
-import stockdata
+import stockdata_930
 import pickle
 
 
@@ -118,7 +118,7 @@ def df_to_list_of_dicts(df):
     return stocks_data
 
 def main():
-    tickers = stockdata.get_all_tickers()
+    tickers = stockdata_930.get_all_tickers()
     # tickers = ["AAPL", "FB", "MSFT", "TSLA"]
     # tickers = tickers[:200]
     # # print(tickers)
@@ -135,7 +135,7 @@ def main():
     days_ago_365 = today - datetime.timedelta(days=365)
     days_ago_729 = today - datetime.timedelta(days=729)
 
-    stock_price = stockdata.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
+    stock_price = stockdata_930.fetch_stock_data(tickers, min(days_ago_6, days_ago_30, days_ago_90, days_ago_365, days_ago_729), today)
 
     #Filter out tickers which have negative daily profit ratio for 1 week.
     bad_tickers = []
